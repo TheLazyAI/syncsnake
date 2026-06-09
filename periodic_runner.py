@@ -39,7 +39,7 @@ def run_agent():
         except Exception:
             venv_python = sys.executable
             
-    agent_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scrape_agent.py")
+    agent_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scrape_agent_adk.py")
     
     # Copy env and clean virtual env parameters if falling back to avoid EPERM on outer venv files
     sub_env = os.environ.copy()

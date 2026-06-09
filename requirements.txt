@@ -1,4 +1,14 @@
+# Core agent runtime
+google-genai>=1.75.0           # Gemini SDK (web/grounding layer in scrape_utils + scrape_agent)
+google-adk>=1.33.0             # Agent Development Kit — Google Cloud Agent Builder runtime (scrape_agent_adk)
+pydantic>=2.0.0               # structured output_schema models for the ADK agents
+
+# Arize Phoenix tracing + evaluation (the Arize track)
 arize-phoenix>=8.0.0
 arize-phoenix-client>=2.0.0
+openinference-instrumentation-google-genai>=0.1.17  # auto-instruments raw google-genai calls
+openinference-instrumentation-google-adk>=0.1.15    # auto-instruments ADK agent spans
+
+# OpenTelemetry plumbing
 opentelemetry-sdk>=1.20.0
 opentelemetry-exporter-otlp>=1.20.0

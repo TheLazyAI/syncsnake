@@ -8,18 +8,17 @@ It is one of **Medusa's snakes** — a standalone module of the larger [Medusa](
 
 ## How It Works
 
-SyncSnake runs a two-tier multi-agent pipeline powered by **Google Gemini** with live **Google Search grounding**:
+SyncSnake runs a two-tier multi-agent pipeline powered by **Google Gemini** and built using the code-first **Google Cloud Agent Development Kit (ADK)** (part of the Google Cloud Agent Builder ecosystem) with live **Google Search grounding**:
 
 ```
-Orchestrator Scout
+Orchestrator Scout (ADK LlmAgent)
   └─ Google Search grounding (real-time music industry landscape)
   └─ Arize Phoenix: query historical sub-agent performance
   └─ Planner LLM: generate 5 targeted queries + viability gate
-        └─ Sub-Agent 1: search → scrape → extract → structure
-        └─ Sub-Agent 2: search → scrape → extract → structure
-        └─ Sub-Agent 3: search → scrape → extract → structure
+        └─ Sub-Agent 1: search → scrape → extract (ADK extractor) → faithfulness
+        └─ Sub-Agent 2: search → scrape → extract (ADK extractor) → faithfulness
         └─ Sub-Agent N: ...
-  └─ Merge & deduplicate → catalogue.json / catalogue.md / dashboard.html
+  └─ Merge & deduplicate (w/ Faithfulness Gate) → catalogue.json / catalogue.md / dashboard.html
 ```
 
 ### The Viability Gate
@@ -32,7 +31,7 @@ Every LLM call, grounding query, and sub-agent run is traced to **Arize Phoenix*
 
 Run with `--trace` to launch the Phoenix UI alongside the agent:
 ```bash
-python scrape_agent.py --trace
+python scrape_agent_adk.py --trace
 ```
 
 ---
@@ -79,17 +78,14 @@ echo "GEMINI_API_KEY=your_key_here" > .env
 ## Usage
 
 ```bash
-# One-time run (non-interactive)
-python scrape_agent.py -n
-
-# Interactive mode — choose automatic or custom guided search
-python scrape_agent.py -i
+# Automatic run (scout & plan)
+python scrape_agent_adk.py
 
 # Custom focus (e.g. genre or location)
-python scrape_agent.py -q "lo-fi hip hop indie electronic"
+python scrape_agent_adk.py -q "lo-fi hip hop indie electronic"
 
 # With Arize Phoenix tracing UI
-python scrape_agent.py --trace
+python scrape_agent_adk.py --trace
 
 # Scheduled background runner (every N hours)
 python periodic_runner.py --daemon 6

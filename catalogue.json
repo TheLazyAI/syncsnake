@@ -10,33 +10,6 @@
       "regions": "UK"
     },
     {
-      "name": "The Sync Agency",
-      "website": "thesyncagency.com",
-      "location": "London, UK",
-      "contact_info": "marion@thesyncagency.com, dan@thesyncagency.com, +44 (0) 7950 743 709, +44 (0) 7968 597 507. For briefs: athene@lemonadereps.com",
-      "submission_guidelines": "Submit for briefs via athene@lemonadereps.com.",
-      "roster_genre_focus": "Not specified, provides music supervision and licensing services.",
-      "regions": "UK"
-    },
-    {
-      "name": "Pitch & Sync",
-      "website": "pitchandsync.com",
-      "location": "London, UK",
-      "contact_info": "cat.edmondson@pitchandsync.com (new projects), info@pitchandsync.com (music submissions), +44 20 7033 9681",
-      "submission_guidelines": "For music submissions, email info@pitchandsync.com.",
-      "roster_genre_focus": "Not specified, offers 360\u00b0 brand consultancy for music and audio, including music searches, licensing, and composition.",
-      "regions": "UK"
-    },
-    {
-      "name": "Synchromusic",
-      "website": "synchromusic.com",
-      "location": "London, UK (also Los Angeles, Rome)",
-      "contact_info": "Contact via their website's contact page.",
-      "submission_guidelines": "Contact via their website for inquiries; provides curated music selections within 48 hours.",
-      "roster_genre_focus": "Sync licensing for brands, film, TV, advertising, and digital campaigns.",
-      "regions": "Global (London, Los Angeles, Rome bases)"
-    },
-    {
       "name": "AudioWave Records",
       "website": "AudioWave Records official website (URL not explicitly provided)",
       "location": "UK",
@@ -56,15 +29,6 @@
     },
     {
       "name": "Atrium Music",
-      "website": "Not specified",
-      "location": "Not specified",
-      "contact_info": "Not specified, generally through submission process",
-      "submission_guidelines": "Provide instrumental versions; ensure clear rights (master and publishing); submit high-quality, broadcast-final mastered tracks; include detailed metadata (full names, PRO information, splits); use proper formatting (downloadable links to zipped folders, labeled with project names, descriptions, dates, instrumentals in separate folders); tailor your pitch.",
-      "roster_genre_focus": "Not specified",
-      "regions": "Not specified"
-    },
-    {
-      "name": "Songtrust",
       "website": "Not specified",
       "location": "Not specified",
       "contact_info": "Not specified, generally through submission process",
@@ -142,33 +106,6 @@
       "contact_info": "Through their website",
       "submission_guidelines": "Represents major record companies and independent labels for licensing popular recorded music for commercial use.",
       "roster_genre_focus": "Popular recorded music from major and independent labels",
-      "regions": "Canada"
-    },
-    {
-      "name": "SOCAN (Society of Composers, Authors and Music Publishers of Canada)",
-      "website": "Official website",
-      "location": "Canada",
-      "contact_info": "General inquiries through website; onlineconcert@socan.com for online concert licensing",
-      "submission_guidelines": "For artists, become a member to collect royalties for public performance. For licensors, SOCAN provides licenses for various music usages.",
-      "roster_genre_focus": "Performing rights and reproduction rights for songwriters, composers, and music publishers",
-      "regions": "Canada"
-    },
-    {
-      "name": "CMRRA (Canadian Musical Reproduction Rights Agency)",
-      "website": "Official website",
-      "location": "Canada",
-      "contact_info": "inquiries@cmrra.ca or +1 (416) 926-1966",
-      "submission_guidelines": "Works with music publishers and self-published songwriters to collect reproduction royalties (mechanical rights).",
-      "roster_genre_focus": "Reproduction rights for musical works",
-      "regions": "Canada"
-    },
-    {
-      "name": "Re:Sound",
-      "website": "Official website",
-      "location": "Canada",
-      "contact_info": "info@resound.ca or +1 (416) 968-8870",
-      "submission_guidelines": "Licenses recorded music for public performance and communication to the public.",
-      "roster_genre_focus": "Represents artists and record companies for recorded music",
       "regions": "Canada"
     },
     {

@@ -2,6 +2,7 @@ import os
 import re
 import json
 import urllib.request
+import urllib.parse
 
 import google.genai as genai
 import google.genai.types as types
@@ -80,6 +81,15 @@ def clean_html(html: str) -> str:
 
 def fetch_url(url: str) -> str:
     """Fetches a URL and returns cleaned text content."""
+    if "grounding-api-redirect" in url:
+        try:
+            parsed = urllib.parse.urlparse(url)
+            qs = urllib.parse.parse_qs(parsed.query)
+            if "url" in qs:
+                url = qs["url"][0]
+        except Exception:
+            pass
+
     if not url.startswith("http://") and not url.startswith("https://"):
         url = "https://" + url
     req = urllib.request.Request(
