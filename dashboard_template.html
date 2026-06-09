@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SyncSnake | Agency Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            /* Adaptive Surface Tiers */
+            --bg-color: #0b1326;
+            --surface-lowest: #060e20;
+            --surface-low: #131b2e;
+            --surface-container: #171f33;
+            --surface-variant: #2d3449;
+            --primary: #22d3ee;
+            --primary-glow: rgba(34, 211, 238, 0.2);
+            --secondary: #aa0266;
+            --secondary-glow: rgba(170, 2, 102, 0.3);
+            --outline: #859397;
+            --outline-variant: #3c494c;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #dae2fd;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            /* Liquid Glass / Adaptive background */
+            background-image: radial-gradient(circle at 10% 20%, rgba(34, 211, 238, 0.05) 0%, transparent 50%),
+                              radial-gradient(circle at 90% 80%, rgba(170, 2, 102, 0.05) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--surface-variant); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--outline-variant); }
+
+        /* Liquid Glass Panel */
+        .glass-panel {
+            background: rgba(23, 31, 51, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(133, 147, 151, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Tactile Micro-Animations */
+        .tactile-btn {
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .tactile-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .tactile-btn:active {
+            transform: translateY(1px);
+        }
+        .bento-card {
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .bento-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(34, 211, 238, 0.3);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 15px var(--primary-glow);
+        }
+
+        /* Glow utilities */
+        .glow-cyan { box-shadow: 0 0 20px var(--primary-glow); }
+        .glow-crimson { box-shadow: 0 0 20px var(--secondary-glow); }
+
+        /* 3D Scene Styles for Rolodex - Solid Mechanical */
+        .scene {
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            perspective: 1500px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .carousel {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            bottom: 0;
+        }
+        .carousel-cell {
+            position: absolute;
+            width: 90vw;
+            max-width: 1100px;
+            height: 65vh;
+            max-height: 650px;
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
+            bottom: 80px;
+            background-color: #171f33 !important; /* Solid surface-container */
+            backdrop-filter: none !important;
+            border: 2px solid #3c494c !important; /* Thicker mechanical border */
+            border-radius: 24px;
+            backface-visibility: hidden;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            transform-origin: bottom center; /* MECHANICAL ANCHOR */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s, filter 0.4s;
+        }
+        
+        .carousel-cell.bg-on-surface {
+            background-color: #dae2fd !important; /* Solid Light */
+            color: #0b1326 !important;
+        }
+        .carousel-cell.bg-primary {
+            background-color: #22d3ee !important; /* Solid Cyan */
+        }
+        .carousel-cell.bg-secondary {
+            background-color: #aa0266 !important; /* Solid Crimson */
+        }
+        
+        .carousel-cell.is-inactive {
+            filter: brightness(0.4) grayscale(0.2) !important;
+            pointer-events: none;
+        }
+        .carousel-cell.is-inactive {
+            opacity: 0.1;
+            filter: blur(2px);
+            pointer-events: none;
+        }
+        .drag-handle { cursor: grab; }
+        .drag-handle:active { cursor: grabbing; }
+
+        .hidden { display: none !important; }
+
+        /* Toggle switch */
+        .toggle-bg {
+            position: relative;
+            background: var(--surface-lowest);
+            border: 1px solid var(--outline-variant);
+            border-radius: 999px;
+            padding: 4px;
+            display: inline-flex;
+            cursor: pointer;
+        }
+        .toggle-pill {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            width: calc(50% - 4px);
+            background: var(--surface-variant);
+            border-radius: 999px;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 0;
+        }
+        .toggle-option {
+            position: relative;
+            z-index: 1;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--outline);
+            transition: color 0.3s;
+            text-transform: uppercase;
+        }
+        .toggle-option.active { color: var(--primary); }
+        .toggle-bg[data-view="expanded"] .toggle-pill { transform: translateX(100%); }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                  "primary": "#22d3ee",
+                  "on-primary": "#00363e",
+                  "secondary": "#aa0266",
+                  "on-secondary": "#ffbad3",
+                  "background": "#0b1326",
+                  "surface": "#0b1326",
+                  "surface-container-lowest": "#060e20",
+                  "surface-container-low": "#131b2e",
+                  "surface-container": "#171f33",
+                  "surface-variant": "#2d3449",
+                  "outline": "#859397",
+                  "outline-variant": "#3c494c",
+                  "on-surface": "#dae2fd",
+                  "on-surface-variant": "#bbc9cd"
+              },
+              spacing: {
+                  "sidebar-width": "280px",
+                  "gutter": "32px"
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface flex min-h-screen">
+
+    <!-- Sidebar Navigation Shell (Liquid Glass) -->
+    <aside class="w-sidebar-width h-screen fixed left-0 top-0 glass-panel border-r border-outline-variant/30 flex flex-col py-8 z-50">
+        <div class="px-6 mb-8 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-background font-bold text-xl shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+                ♬
+            </div>
+            <div class="text-2xl font-bold text-on-surface font-['Plus_Jakarta_Sans'] tracking-tight">
+                SyncSnake
+            </div>
+        </div>
+        
+        <div class="px-6 mb-2">
+            <p class="text-[10px] font-bold tracking-[0.2em] text-outline uppercase">Categories</p>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto custom-scrollbar px-3 space-y-1" id="categories-nav">
+            <!-- Nav items injected by JS -->
+        </nav>
+        
+        <div class="mt-auto px-6 pt-6 border-t border-outline-variant/30">
+            <button id="open-map-btn" class="tactile-btn w-full bg-surface-container border border-outline-variant text-on-surface py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+                <span class="material-symbols-outlined text-[18px]">map</span>
+                View Agent Map
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Canvas -->
+    <main class="ml-sidebar-width flex-1 flex flex-col min-h-screen relative">
+        <!-- Top App Bar -->
+        <header class="h-20 px-gutter flex justify-between items-center sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-outline-variant/20">
+            <div class="flex items-center gap-4">
+                <h1 id="header-title" class="text-2xl font-bold text-on-surface tracking-tight">Catalogue</h1>
+                <div class="bg-surface-container rounded-full px-3 py-1 flex items-center gap-2 border border-outline-variant/30 shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]"></span>
+                    <span class="text-[10px] font-bold text-outline uppercase tracking-widest">Live</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-8">
+                <!-- View Toggle -->
+                <div class="toggle-bg" id="view-toggle" data-view="showcase" onclick="toggleView()">
+                    <div class="toggle-pill"></div>
+                    <div class="toggle-option active" id="opt-showcase">Showcase</div>
+                    <div class="toggle-option" id="opt-expanded">Expanded</div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <span class="material-symbols-outlined text-outline hover:text-primary transition-colors cursor-pointer tactile-btn">notifications</span>
+                    <div class="w-10 h-10 rounded-full bg-surface-variant border border-outline-variant overflow-hidden cursor-pointer tactile-btn">
+                        <img alt="User" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTkkXATqw8K_Kz944hPHpYlfQxt3jVjcb4xC4qbasVkUF1x0bm3ao0bTE0B-_V1Vs9TfQMfV69ArWTht6PE_7ge0Ea0vFRr12WpDY9a3iyZANPo3-pEPOGUcNE51w5YHdRKUdurcCtkBOXkBRmRxDJ4QmWWuk2fOxH_KqnKbVZWTn2wk4E3ogZDxFvD9kbufmtOjTmZbr_0Z4pLr49vgwtcFyAOf1bNO2pMog3nWrjXPCOAzNrvPKr_sB2LsUbG0SQ3UBOK2_SNWM"/>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- VIEW: Showcase (3D Kinetic Rolodex) -->
+        <section id="view-showcase" class="flex-1 flex flex-col items-center justify-center relative drag-handle overflow-hidden">
+            <div class="scene" id="scene">
+                <div class="absolute bottom-[50px] w-[90%] h-[12px] rounded-full left-[5%] z-10" style="background: linear-gradient(to bottom, #3c494c, #171f33, #3c494c); box-shadow: 0 4px 12px rgba(0,0,0,0.8);"></div>
+                <div class="carousel" id="carousel">
+                    <!-- Panels injected by JS -->
+                </div>
+            </div>
+            
+            <div class="absolute bottom-12 flex flex-col items-center gap-6 z-30 pointer-events-none">
+                <div class="flex items-center gap-2 pointer-events-auto" id="nav-dots"></div>
+                <div class="flex items-center gap-2 text-outline text-[10px] font-bold uppercase tracking-widest opacity-60">
+                    <span class="material-symbols-outlined text-sm">mouse</span>
+                    Scroll or Drag to Rotate
+                </div>
+            </div>
+
+            <!-- Nav Controls -->
+            <div class="absolute inset-x-12 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-40">
+                <button class="w-14 h-14 rounded-full glass-panel flex items-center justify-center text-primary pointer-events-auto hover:bg-primary hover:text-on-primary tactile-btn shadow-lg" onclick="rotateToPrev()">
+                    <span class="material-symbols-outlined text-3xl">chevron_left</span>
+                </button>
+                <button class="w-14 h-14 rounded-full glass-panel flex items-center justify-center text-primary pointer-events-auto hover:bg-primary hover:text-on-primary tactile-btn shadow-lg" onclick="rotateToNext()">
+                    <span class="material-symbols-outlined text-3xl">chevron_right</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW: Expanded (Bento Grid, Stats, Search) -->
+        <section id="view-expanded" class="flex-1 hidden flex-col p-gutter overflow-y-auto">
+            
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-on-surface mb-2 tracking-tight">Data Grid</h2>
+                    <p class="text-outline text-sm">Detailed overview of all records in the active category.</p>
+                </div>
+                <div class="relative w-80">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+                    <input type="text" id="search-box" class="w-full bg-surface-lowest border border-outline-variant/50 rounded-xl py-3 pl-12 pr-4 text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Filter current list...">
+                </div>
+            </div>
+
+            <!-- Stats Banner -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10" id="stats-banner">
+                <!-- Stats injected by JS -->
+            </div>
+
+            <!-- Bento Grid -->
+            <div class="glass-panel rounded-3xl p-8 min-h-[500px]">
+                <div class="flex justify-between items-center mb-6 pb-6 border-b border-outline-variant/30">
+                    <h3 class="text-xl font-bold flex items-center gap-3">
+                        <span id="grid-category-icon" class="material-symbols-outlined text-primary"></span>
+                        <span id="grid-category-name">Opportunities</span>
+                    </h3>
+                    <div class="text-xs font-bold text-outline uppercase tracking-wider bg-surface-lowest px-4 py-2 rounded-full border border-outline-variant/30" id="results-count-badge">
+                        Showing 0 records
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="opp-container">
+                    <!-- Cards injected by JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Agent Map Modal -->
+    <div id="map-modal" class="hidden fixed top-0 left-0 w-full h-full bg-background/90 z-[1000] backdrop-blur-md items-center justify-center">
+        <div class="bg-surface-lowest border border-outline-variant/50 rounded-3xl p-6 shadow-2xl max-w-4xl w-full mx-4 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+            
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold tracking-widest text-on-surface uppercase flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">satellite_alt</span>
+                    Agent Network Visualizer
+                </h2>
+                <button id="close-map" class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-outline hover:text-white hover:bg-secondary transition-colors tactile-btn">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            
+            <div class="bg-[#050508] border border-outline-variant/30 rounded-xl overflow-hidden flex justify-center items-center h-[500px] w-full">
+                <canvas id="agent-canvas" width="800" height="500" class="w-full h-full object-contain opacity-80" style="image-rendering: pixelated;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const catalogueData = %DATA%;
+        
+        const categoryConfigs = {
+            agencies: {
+                label: "Sync Agencies", icon: "corporate_fare",
+                titleKey: "name", subtitleKey: "location", descKey: "submission_guidelines",
+                pills: ["roster_genre_focus", "regions"], urlKey: "website", contactKey: "contact_info"
+            },
+            supervisors: {
+                label: "Music Supervisors", icon: "groups",
+                titleKey: "name", subtitleKey: "company", descKey: "submission_policy",
+                pills: ["location", "notable_projects"], urlKey: "contact_info", contactKey: "contact_info"
+            },
+            platforms: {
+                label: "Brief Platforms", icon: "assignment",
+                titleKey: "name", subtitleKey: "requirements", descKey: "description",
+                pills: ["requirements"], urlKey: "url", contactKey: "url"
+            },
+            grants: {
+                label: "Grants & Funding", icon: "payments",
+                titleKey: "name", subtitleKey: "organization", descKey: "eligibility_summary",
+                pills: ["deadlines"], urlKey: "url", contactKey: "deadlines"
+            },
+            festivals: {
+                label: "Showcase Festivals", icon: "theater_comedy",
+                titleKey: "name", subtitleKey: "location", descKey: "requirements_fees",
+                pills: ["application_window"], urlKey: "url", contactKey: "application_window"
+            },
+            indie_games: {
+                label: "Indie Video Games", icon: "sports_esports",
+                titleKey: "project_name", subtitleKey: "developer_studio", descKey: "status_or_needs",
+                pills: [], urlKey: "url", contactKey: "contact_info"
+            },
+            ad_agencies: {
+                label: "Ad Agencies", icon: "campaign",
+                titleKey: "name", subtitleKey: "location", descKey: "creative_director_or_leads",
+                pills: ["location"], urlKey: "website", contactKey: "contact_info"
+            },
+            music_libraries: {
+                label: "Music Libraries", icon: "library_music",
+                titleKey: "name", subtitleKey: "submission_status", descKey: "requirements_genres",
+                pills: ["payout_model"], urlKey: "url", contactKey: "submission_status"
+            },
+            competitions: {
+                label: "Competitions", icon: "emoji_events",
+                titleKey: "name", subtitleKey: "deadlines", descKey: "prizes_categories",
+                pills: ["entry_fees_requirements"], urlKey: "url", contactKey: "deadlines"
+            },
+            restricted_resources: {
+                label: "Restricted Resources", icon: "lock",
+                titleKey: "source_name", subtitleKey: "reason_for_restriction", descKey: "expected_value",
+                pills: ["reason_for_restriction"], urlKey: "url", contactKey: "url"
+            }
+        };
+
+        let activeTab = "agencies";
+        let currentView = "showcase"; // "showcase" or "expanded"
+        let searchQuery = "";
+
+        // Rolodex State
+        const carousel = document.getElementById('carousel');
+        const navDots = document.getElementById('nav-dots');
+        let panelCount = 0;
+        const panelHeight = 400;
+        let theta = 0;
+        let radius = 0;
+        let currAngle = 0;
+        let selectedIndex = 0;
+        let isDragging = false;
+        let lastFrameY = 0;
+        let velocity = 0;
+        let animationFrame;
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            renderNav();
+            renderStats();
+            switchTab(activeTab);
+            
+            // Map Modal Logic
+            document.getElementById('open-map-btn').addEventListener('click', () => {
+                const m = document.getElementById('map-modal');
+                m.classList.remove('hidden'); m.classList.add('flex');
+            });
+            document.getElementById('close-map').addEventListener('click', () => {
+                const m = document.getElementById('map-modal');
+                m.classList.remove('flex'); m.classList.add('hidden');
+            });
+
+            // Search Logic
+            document.getElementById("search-box").addEventListener("input", (e) => {
+                searchQuery = e.target.value.toLowerCase().trim();
+                renderExpandedGrid();
+            });
+
+            setupRolodexInteraction();
+        }
+
+        function toggleView() {
+            const toggleBg = document.getElementById('view-toggle');
+            if (currentView === "showcase") {
+                currentView = "expanded";
+                toggleBg.setAttribute("data-view", "expanded");
+                document.getElementById('opt-showcase').classList.remove('active');
+                document.getElementById('opt-expanded').classList.add('active');
+                
+                document.getElementById('view-showcase').classList.add('hidden');
+                document.getElementById('view-expanded').classList.remove('hidden');
+                document.getElementById('view-expanded').classList.add('flex');
+                
+                renderExpandedGrid();
+            } else {
+                currentView = "showcase";
+                toggleBg.setAttribute("data-view", "showcase");
+                document.getElementById('opt-expanded').classList.remove('active');
+                document.getElementById('opt-showcase').classList.add('active');
+                
+                document.getElementById('view-expanded').classList.add('hidden');
+                document.getElementById('view-expanded').classList.remove('flex');
+                document.getElementById('view-showcase').classList.remove('hidden');
+                
+                initCarousel();
+            }
+        }
+
+        function renderNav() {
+            const nav = document.getElementById("categories-nav");
+            nav.innerHTML = "";
+            
+            Object.keys(categoryConfigs).forEach(key => {
+                const config = categoryConfigs[key];
+                const items = catalogueData[key] || [];
+                
+                const a = document.createElement("a");
+                a.id = `nav-${key}`;
+                a.onclick = (e) => { e.preventDefault(); switchTab(key); };
+                a.innerHTML = `
+                    <span class="material-symbols-outlined text-[20px] transition-colors">${config.icon}</span>
+                    <span class="text-sm font-medium flex-1">${config.label}</span>
+                    <span class="text-[10px] font-bold bg-surface-container border border-outline-variant/30 px-2 py-0.5 rounded-full">${items.length}</span>
+                `;
+                nav.appendChild(a);
+            });
+        }
+
+        function switchTab(key) {
+            document.querySelectorAll("#categories-nav a").forEach(el => {
+                el.className = "flex items-center py-3 px-4 gap-3 cursor-pointer text-outline hover:bg-surface-variant/30 hover:text-on-surface rounded-xl transition-all border border-transparent";
+            });
+            const activeNav = document.getElementById(`nav-${key}`);
+            if (activeNav) {
+                activeNav.className = "flex items-center py-3 px-4 gap-3 cursor-pointer text-primary bg-primary/10 border border-primary/20 rounded-xl transition-all shadow-[inset_4px_0_0_var(--primary)]";
+            }
+
+            activeTab = key;
+            const config = categoryConfigs[key];
+            
+            document.getElementById("header-title").innerText = `${config.label} Catalogue`;
+            document.getElementById("grid-category-icon").innerText = config.icon;
+            document.getElementById("grid-category-name").innerText = config.label;
+            
+            if (currentView === "showcase") {
+                initCarousel();
+            } else {
+                renderExpandedGrid();
+            }
+        }
+
+        function renderStats() {
+            const banner = document.getElementById("stats-banner");
+            banner.innerHTML = "";
+
+            const totalAgencies = (catalogueData.agencies || []).length;
+            const totalSupervisors = (catalogueData.supervisors || []).length;
+            const totalLibraries = (catalogueData.music_libraries || []).length;
+            const totalPlatforms = (catalogueData.platforms || []).length;
+
+            const stats = [
+                { label: "Sync Agencies", value: totalAgencies, color: "var(--primary)" },
+                { label: "Music Supervisors", value: totalSupervisors, color: "var(--secondary)" },
+                { label: "Production Libraries", value: totalLibraries, color: "#9f7aea" },
+                { label: "Pitch Platforms", value: totalPlatforms, color: "#ed8936" }
+            ];
+
+            stats.forEach(stat => {
+                const card = document.createElement("div");
+                card.className = "bg-surface-lowest border border-outline-variant/50 rounded-2xl p-6 relative overflow-hidden flex flex-col gap-2 bento-card";
+                card.innerHTML = `
+                    <div class="absolute top-0 left-0 w-1 h-full" style="background: linear-gradient(to bottom, ${stat.color}, transparent);"></div>
+                    <div class="text-xs font-bold uppercase tracking-wider text-outline pl-2">${stat.label}</div>
+                    <div class="text-4xl font-black text-on-surface pl-2 tracking-tight">${stat.value}</div>
+                `;
+                banner.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // 3D ROLODEX LOGIC (Showcase View)
+        // ==========================================
+        function initCarousel() {
+            carousel.innerHTML = "";
+            navDots.innerHTML = "";
+            currAngle = 0; velocity = 0;
+            
+            const items = catalogueData[activeTab] || [];
+            if (items.length === 0) {
+                carousel.innerHTML = `<div class="carousel-cell flex items-center justify-center text-outline">No records found.</div>`;
+                return;
+            }
+            
+            panelCount = items.length;
+
+            const config = categoryConfigs[activeTab];
+
+            items.forEach((item, i) => {
+                const cell = document.createElement('div');
+                
+                const themeIndex = i % 3;
+                let themeClasses = "";
+                let titleColor = "text-on-surface";
+                let subTextColor = "text-outline";
+                let iconColor = "text-primary";
+                let actionBtn = "bg-primary text-on-primary";
+
+                if (themeIndex === 0) {
+                    themeClasses = "carousel-cell bg-surface-container";
+                } else if (themeIndex === 1) {
+                    themeClasses = "carousel-cell bg-on-surface text-surface-container-lowest";
+                    titleColor = "text-surface-container-lowest";
+                    subTextColor = "text-surface-container-low/70";
+                    iconColor = "text-surface-container-lowest";
+                    actionBtn = "bg-surface-container-lowest text-on-surface";
+                } else {
+                    const isPrimary = i % 2 === 0;
+                    themeClasses = isPrimary ? "carousel-cell bg-primary text-on-primary" : "carousel-cell bg-secondary text-white";
+                    titleColor = isPrimary ? "text-on-primary" : "text-white";
+                    subTextColor = isPrimary ? "text-on-primary/70" : "text-white/70";
+                    iconColor = isPrimary ? "text-on-primary" : "text-white";
+                    actionBtn = isPrimary ? "bg-on-primary text-primary" : "bg-on-secondary text-secondary";
+                }
+
+                cell.className = themeClasses;
+
+                const title = item[config.titleKey] || "Untitled";
+                const subtitle = item[config.subtitleKey] || "";
+                const desc = item[config.descKey] || "No details provided.";
+                const link = item[config.urlKey] || "#";
+
+                cell.innerHTML = `
+                    <div class="flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2 h-full">
+                        <div class="flex justify-between items-start">
+                            <div class="w-14 h-14 rounded-2xl bg-black/10 border border-white/20 flex items-center justify-center flex-shrink-0 shadow-inner">
+                                <span class="material-symbols-outlined text-3xl ${iconColor}">${config.icon}</span>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-black/10 border border-white/20 ${iconColor}">Verified</span>
+                                <span class="text-[10px] font-mono opacity-50">RECORD ${i+1}/${panelCount}</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h2 class="text-3xl font-bold ${titleColor} tracking-tight leading-tight">${title}</h2>
+                            <div class="flex items-center gap-3 mt-2 ${subTextColor} font-medium text-sm">
+                                ${subtitle ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">info</span>${subtitle}</span>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-black/5 border border-white/10 relative overflow-hidden flex-1">
+                            <h3 class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">subject</span>Details
+                            </h3>
+                            <p class="text-sm leading-relaxed opacity-90 font-light">
+                                ${desc}
+                            </p>
+                        </div>
+                        
+                        <div class="pt-4 flex gap-3">
+                            <a href="${link.startsWith('http') ? link : 'http://'+link}" target="_blank" class="flex-1 ${actionBtn} text-xs font-bold uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 tactile-btn border border-black/10">
+                                Visit Resource <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                carousel.appendChild(cell);
+
+                const dot = document.createElement('div');
+                dot.className = `h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-6 bg-primary glow-cyan' : 'w-1.5 bg-outline-variant/40'}`;
+                navDots.appendChild(dot);
+            });
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            if (panelCount === 0) return;
+            
+            // currAngle represents currentRotation index
+            const currentRotation = currAngle;
+            
+            // Calculate active index
+            selectedIndex = Math.round(currentRotation);
+            if (selectedIndex < 0) selectedIndex = 0;
+            if (selectedIndex >= panelCount) selectedIndex = panelCount - 1;
+
+            const cells = carousel.children;
+            for (let i = 0; i < cells.length; i++) {
+                const delta = i - currentRotation;
+                let rotation = 0;
+                let zIndex = 0;
+                let zOffset = 0;
+
+                let scale = 1;
+                let yOffset = 0;
+
+                if (delta > 0) {
+                    // Card is back/inactive in the queue
+                    const factor = Math.min(1, delta);
+                    rotation = -90 * factor;
+                    zIndex = panelCount - i;
+                    
+                    // Stagger backwards and upwards to create a grand staircase
+                    zOffset = -delta * 60; 
+                    yOffset = -delta * 30; 
+                } else if (delta < 0) {
+                    // Card is flipped/front
+                    const factor = Math.min(1, -delta);
+                    rotation = 110 * factor;
+                    zIndex = i;
+                    
+                    // Flipped cards stack closely at the bottom
+                    zOffset = delta * 15;
+                    yOffset = 0;
+                } else {
+                    // Active card pops out
+                    rotation = 0;
+                    zIndex = panelCount + 10;
+                    scale = 1.05;
+                }
+
+                // Apply transform with centering X (due to left: 50%)
+                cells[i].style.transform = `translateX(-50%) translateZ(${zOffset}px) translateY(${yOffset}px) rotateX(${rotation}deg) scale(${scale})`;
+                cells[i].style.zIndex = zIndex;
+                
+                // Visual effects
+                const dist = Math.abs(delta);
+                if (dist < 0.5) {
+                    cells[i].classList.remove('is-inactive');
+                } else {
+                    cells[i].classList.add('is-inactive');
+                }
+            }
+
+            const dots = navDots.children;
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].className = `h-1.5 rounded-full transition-all duration-300 ${i === selectedIndex ? 'w-6 bg-primary glow-cyan' : 'w-1.5 bg-outline-variant/40'}`;
+            }
+        }
+
+        function setupRolodexInteraction() {
+            const rc = document.getElementById('rolodex-canvas');
+            
+            function snapToNearest() {
+                if (panelCount === 0) return;
+                
+                let target = Math.round(currAngle);
+                if (target < 0) target = 0;
+                if (target >= panelCount) target = panelCount - 1;
+                
+                const start = currAngle;
+                const change = target - start;
+                let currentTime = 0;
+                const duration = 25; // frames
+
+                function animateSnap() {
+                    currentTime++;
+                    const t = currentTime / duration;
+                    const ease = 1 - Math.pow(1 - t, 3);
+                    currAngle = start + change * ease;
+                    updateCarousel();
+                    if (currentTime < duration) {
+                        animationFrame = requestAnimationFrame(animateSnap);
+                    }
+                }
+                if (animationFrame) cancelAnimationFrame(animationFrame);
+                animateSnap();
+            }
+
+            rc.addEventListener('mousedown', (e) => {
+                isDragging = true; lastFrameY = e.clientY; velocity = 0;
+                if (animationFrame) cancelAnimationFrame(animationFrame);
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaY = e.clientY - lastFrameY; lastFrameY = e.clientY;
+                // Map Y pixels to rotation index
+                currAngle += (deltaY * 0.015); 
+                velocity = deltaY * 0.02;
+                updateCarousel();
+            });
+            window.addEventListener('mouseup', () => {
+                if (!isDragging) return;
+                isDragging = false; applyInertia();
+            });
+            rc.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                currAngle += (e.deltaY * 0.005); updateCarousel();
+                clearTimeout(window.wheelTimeout);
+                window.wheelTimeout = setTimeout(snapToNearest, 200);
+            }, { passive: false });
+
+            function applyInertia() {
+                if (Math.abs(velocity) < 0.005) { snapToNearest(); return; }
+                currAngle += velocity; velocity *= 0.92;
+                
+                // Bounds
+                if (currAngle < -1 || currAngle > panelCount) {
+                    snapToNearest(); return;
+                }
+                
+                updateCarousel(); animationFrame = requestAnimationFrame(applyInertia);
+            }
+        }
+        
+        function rotateToNext() { 
+            if (panelCount) { 
+                let target = Math.round(currAngle) + 1;
+                if (target >= panelCount) target = panelCount - 1;
+                animateTo(target); 
+            } 
+        }
+        function rotateToPrev() { 
+            if (panelCount) { 
+                let target = Math.round(currAngle) - 1;
+                if (target < 0) target = 0;
+                animateTo(target); 
+            } 
+        }
+        function animateTo(target) {
+            const start = currAngle;
+            const change = target - start;
+            let t = 0;
+            function frame() {
+                t += 0.05;
+                if (t >= 1) {
+                    currAngle = target;
+                    updateCarousel();
+                    return;
+                }
+                const ease = 1 - Math.pow(1 - t, 4);
+                currAngle = start + change * ease;
+                updateCarousel();
+                requestAnimationFrame(frame);
+            }
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+            frame();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (currentView === "showcase") {
+                if (e.key === 'ArrowUp') rotateToPrev();
+                if (e.key === 'ArrowDown') rotateToNext();
+            }
+        });
+
+// ==========================================
+        // EXPANDED BENTO GRID LOGIC
+        // ==========================================
+
+        function renderExpandedGrid() {
+            const container = document.getElementById("opp-container");
+            container.innerHTML = "";
+
+            const items = catalogueData[activeTab] || [];
+            const config = categoryConfigs[activeTab];
+
+            const filteredItems = items.filter(item => {
+                if (!searchQuery) return true;
+                return Object.values(item).some(val => val && val.toString().toLowerCase().includes(searchQuery));
+            });
+
+            document.getElementById("results-count-badge").innerText = `Showing ${filteredItems.length} of ${items.length} records`;
+
+            if (filteredItems.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-20 text-outline">No records match your search.</div>`;
+                return;
+            }
+
+            filteredItems.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "bg-surface-lowest border border-outline-variant/40 rounded-2xl p-6 flex flex-col bento-card relative overflow-hidden group";
+
+                const title = item[config.titleKey] || "Untitled";
+                const subtitle = item[config.subtitleKey] || "";
+                const desc = item[config.descKey] || "No description provided.";
+                const link = item[config.urlKey] || "#";
+                
+                let pillsHtml = "";
+                if (config.pills) {
+                    config.pills.forEach(pillKey => {
+                        if (item[pillKey]) {
+                            pillsHtml += `<span class="bg-surface-variant text-outline text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border border-outline-variant/50">${item[pillKey]}</span>`;
+                        }
+                    });
+                }
+
+                card.innerHTML = `
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="material-symbols-outlined text-6xl text-primary">${config.icon}</span>
+                    </div>
+                    
+                    <div class="relative z-10 flex flex-col h-full">
+                        <h4 class="text-xl font-bold text-on-surface mb-1 pr-12 leading-tight">${title}</h4>
+                        ${subtitle ? `<p class="text-sm font-medium text-primary mb-4 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">my_location</span>${subtitle}</p>` : '<div class="h-4 mb-4"></div>'}
+                        
+                        <div class="flex flex-wrap gap-2 mb-5">
+                            ${pillsHtml}
+                        </div>
+                        
+                        <div class="bg-surface-container/50 border border-outline-variant/30 rounded-xl p-4 flex-1 mb-5">
+                            <p class="text-sm text-on-surface-variant font-light leading-relaxed line-clamp-4">${desc}</p>
+                        </div>
+                        
+                        <div class="mt-auto pt-4 border-t border-outline-variant/20 flex justify-between items-center">
+                            <div class="text-xs font-mono text-outline truncate max-w-[60%]">
+                                ${item[config.contactKey] || "No contact info"}
+                            </div>
+                            <a href="${link.startsWith('http') ? link : 'http://'+link}" target="_blank" class="text-primary hover:text-white bg-primary/10 hover:bg-primary transition-colors p-2 rounded-lg tactile-btn">
+                                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

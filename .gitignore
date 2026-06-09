@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.env
+*.backup
+stitch_content.html
+runner_status.json
+runner_output.log
+runner_error.log
+.DS_Store
