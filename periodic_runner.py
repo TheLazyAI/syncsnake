@@ -11,10 +11,12 @@ def run_agent():
     """Spins up the deep research agent as a sub-process."""
     print(f"[{datetime.now().isoformat()}] Waking up research agent...")
     
-    # Path to the virtual env python
-    venv_python = "/Users/maryann/sonic/.venv/bin/python"
-    cfg_file = "/Users/maryann/sonic/.venv/pyvenv.cfg"
-    
+    # Prefer a venv inside the project directory, fall back to sys.executable
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    local_venv_python = os.path.join(script_dir, "venv", "bin", "python")
+    venv_python = local_venv_python
+    cfg_file = os.path.join(script_dir, "venv", "pyvenv.cfg")
+
     venv_accessible = False
     try:
         if os.path.exists(venv_python) and os.access(venv_python, os.X_OK) and os.path.exists(cfg_file):
@@ -41,7 +43,7 @@ def run_agent():
     
     # Copy env and clean virtual env parameters if falling back to avoid EPERM on outer venv files
     sub_env = os.environ.copy()
-    if venv_python != "/Users/maryann/sonic/.venv/bin/python":
+    if venv_python != local_venv_python or not venv_accessible:
         sub_env.pop("VIRTUAL_ENV", None)
         sub_env.pop("__PYVENV_LAUNCHER__", None)
         if "PATH" in sub_env:
@@ -99,7 +101,7 @@ def start_scheduler(interval_hours):
 def generate_launchd_plist():
     """Generates a macOS launchd PLIST file content for the user."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    venv_python = "/Users/maryann/sonic/.venv/bin/python"
+    venv_python = os.path.join(script_dir, "venv", "bin", "python")
     runner_script = os.path.join(script_dir, "periodic_runner.py")
     
     plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
