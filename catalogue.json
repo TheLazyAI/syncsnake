@@ -404,6 +404,15 @@
       "submission_guidelines": "Contact through general contact information on their website to inquire about artist submissions for jazz music. Emphasize one-stop clearance and comprehensive metadata.",
       "roster_genre_focus": "High-quality independent jazz and world music",
       "regions": "Global"
+    },
+    {
+      "name": "Terrorbird",
+      "website": "Not specified in text",
+      "location": "Not specified in text",
+      "contact_info": "Not specified in text",
+      "submission_guidelines": "Open to independent and DIY artists",
+      "roster_genre_focus": "Hip-hop, independent and DIY artists",
+      "regions": "Not specified in text"
     }
   ],
   "supervisors": [
@@ -920,6 +929,90 @@
       "url": "Not explicitly provided, likely groover.co",
       "description": "Platform listing 'Top sync supervisors for folk/acoustic'. Allows artists to send music and receive feedback.",
       "requirements": "Sign up on Groover to access contact information and submission process."
+    },
+    {
+      "name": "Music Placement Conference",
+      "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHXSCMK49bx2w-K0cAfDIoOo1pYP2UIOwSKHXdwumwra8DFcxQ5vpTclryAM9dFx53MeWfb3Jc5WVu1BbtiSR6bCG0_RHP5CkuiesYO5ftB7eaSZis0F1_CfynFPGpuDwyHBp-YzA0q-Dq1vA==",
+      "description": "Designed for music producers, songwriters, and beatmakers to connect with entertainment executives, sync agents, and music supervisors. Focuses on music placement, networking with filmmakers, and mastering sync.",
+      "requirements": "Implied for music producers, songwriters, beatmakers"
+    },
+    {
+      "name": "Sync Summit - AI+SYNC Symposium",
+      "url": "https://syncsummit.com/aiagenda/",
+      "description": "Event for networking, education and sharing knowledge in music licensing for visual and interactive media. Focuses on AI and sync.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "Sync Summit - NY Ad Sync Summit",
+      "url": "https://syncsummit.com/asagenda26/",
+      "description": "Event for networking, education and sharing knowledge in music licensing for visual and interactive media, including TV, film, brands, ads, games, apps, and social media. Offers online listening sessions.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "Music in Motion: Sync Summit at ECMA 2026",
+      "url": "Not specified in text",
+      "description": "For artists and industry professionals looking to advance in music synchronization. Features interactive sessions, a curated networking mixer, and live pitch sessions where artists can present their music directly to music supervisors and receive real-time feedback.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "Guild of Music Supervisors East & Mondo.NYC",
+      "url": "Not specified in text",
+      "description": "Brings together leading music supervisors and creators from advertising, film, and television. Includes panels, networking, roundtables, case studies, 'Mondo Meetup - Coffee Talk with Music Supervisors' and 'Mondo 'SyncStar' Search: Get Heard by Music Supervisors'.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "Get Signed In Sync Conference",
+      "url": "Not specified in text",
+      "description": "Provides an opportunity for indie artists, songwriters, and producers to meet over 25 top music licensing agencies that can place music in ads, TV, and film.",
+      "requirements": "Indie artists, songwriters, and producers"
+    },
+    {
+      "name": "MUSEXPO 2026",
+      "url": "Not specified in text",
+      "description": "Global music business conference attracting record label executives, A&R teams, publishers, distributors, music supervisors, and managers for focused conversations and networking.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "Shades of Sync Conference",
+      "url": "Not specified in text",
+      "description": "Offers expert panels, networking with industry professionals, and virtual listening sessions with top music supervisors.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "12th Annual GMS 'STATE of MUSIC in MEDIA' CONFERENCE",
+      "url": "Not specified in text",
+      "description": "Provides extensive networking opportunities, live panels, a networking lunch, live music, and mentorship opportunities.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "Sync Summit LA",
+      "url": "https://syncsummit.com/la2027agenda/",
+      "description": "Offers access to all sessions, opportunity to have music sent to every speaker, contact list of speakers and attendees, and meeting setup assistance during Grammy Week.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "MUSEXPO 2027",
+      "url": "Not specified in text",
+      "description": "Provides access to panels, keynotes, executive roundtable networking, artist showcases, and opportunities to interact with peers and industry leaders.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "Sync Summit Online Listening Sessions",
+      "url": "https://syncsummit.com/listeningsessions",
+      "description": "Connect your music to decision-makers remotely.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "IMDb",
+      "url": "Not specified in text",
+      "description": "Can help identify music supervisors and the types of music they use.",
+      "requirements": "Not specified in text"
+    },
+    {
+      "name": "Tunefind",
+      "url": "Not specified in text",
+      "description": "Can help identify music supervisors and the types of music they use.",
+      "requirements": "Not specified in text"
     }
   ],
   "restricted_resources": [
