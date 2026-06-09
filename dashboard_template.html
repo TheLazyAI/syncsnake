@@ -76,15 +76,16 @@
         .glow-cyan { box-shadow: 0 0 20px var(--primary-glow); }
         .glow-crimson { box-shadow: 0 0 20px var(--secondary-glow); }
 
-        /* 3D Scene Styles for Rolodex - True Cylinder */
+        /* 3D Scene Styles for Rolodex - Over-the-Hill Arc */
         .scene {
             width: 100%;
             height: 100%;
             flex: 1;
-            perspective: 2000px;
+            perspective: 1800px;
+            perspective-origin: 50% 40%; /* eye slightly raised — gentle look-down, no back-card poke */
             position: relative;
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
         }
         .carousel {
@@ -92,15 +93,18 @@
             height: 100%;
             position: absolute;
             transform-style: preserve-3d;
-            bottom: 0;
+            top: 0;
+            left: 0;
         }
         .carousel-cell {
             position: absolute;
             width: 680px;
             height: 480px;
             left: 50%;
+            top: 50%;
             margin-left: -340px;
-            bottom: 90px;
+            margin-top: -240px;
+            will-change: transform, opacity;
             background-color: #171f33 !important;
             backdrop-filter: none !important;
             border: 2px solid #3c494c !important;
@@ -109,9 +113,9 @@
             padding: 32px;
             display: flex;
             flex-direction: column;
-            transform-origin: center bottom;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            transition: opacity 0.3s, filter 0.3s;
+            transform-origin: center center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.85);
+            transition: opacity 0.25s, filter 0.25s;
         }
         .carousel-cell.bg-on-surface {
             background-color: #dae2fd !important;
@@ -252,6 +256,27 @@
                 </div>
             </div>
         </header>
+
+        <!-- Filter bar (applies to both views) -->
+        <div class="px-gutter py-3 flex flex-wrap items-center gap-3 bg-background/70 border-b border-outline-variant/20 sticky top-20 z-30 backdrop-blur-md">
+            <span class="material-symbols-outlined text-outline text-[18px]">tune</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-outline mr-1">Filter</span>
+
+            <div class="flex items-center bg-surface-lowest border border-outline-variant/40 rounded-full p-1 text-[11px] font-bold uppercase tracking-wider">
+                <button data-urg="all"       class="urg-btn px-3 py-1 rounded-full transition-colors">All</button>
+                <button data-urg="act"       class="urg-btn px-3 py-1 rounded-full transition-colors">🔴 Act now</button>
+                <button data-urg="evergreen" class="urg-btn px-3 py-1 rounded-full transition-colors">🟢 Evergreen</button>
+            </div>
+
+            <div class="flex items-center gap-2 ml-1">
+                <span class="material-symbols-outlined text-outline text-[18px]">public</span>
+                <select id="region-select" class="bg-surface-lowest border border-outline-variant/40 rounded-full px-3 py-1.5 text-xs text-on-surface focus:outline-none focus:border-primary cursor-pointer">
+                    <option value="all">All regions</option>
+                </select>
+            </div>
+
+            <span id="filter-count" class="ml-auto text-[10px] font-mono text-outline"></span>
+        </div>
 
         <!-- VIEW: Showcase (3D Kinetic Rolodex) -->
         <section id="view-showcase" class="flex-1 flex flex-col items-center justify-center relative drag-handle overflow-hidden">
@@ -396,6 +421,166 @@
             }
         };
 
+        // ==========================================
+        // DATA HYGIENE — clean placeholders, drop expired/vacant, de-dupe.
+        // Shared by the nav, the showcase rolodex and the expanded grid so
+        // every view shows the same clean, actionable set.
+        // ==========================================
+        const PLACEHOLDER_RE = /^(n\/?a|none|null|tbd|unknown|-+|—+|\.+|not\s+(specified|provided|explicitly|directly|publicly|available|applicable|listed|disclosed|stated|mentioned|given|found|known)\b.*|implied\b.*|official\s+website\b.*|visit\b.*website.*|see\b.*website.*|refer\s+to\b.*|contact\s+(via|through)\b.*|direct\s+music\s+production\s+contacts\b.*|their\s+(official\s+)?website\b.*)$/i;
+
+        function clean(val) {
+            if (val === null || val === undefined) return "";
+            const s = String(val).trim();
+            if (s.length < 2) return "";
+            if (PLACEHOLDER_RE.test(s)) return "";
+            return s;
+        }
+        function isRealUrl(val) {
+            const s = clean(val);
+            if (!s) return false;
+            if (/^https?:\/\//i.test(s)) return true;
+            return !/\s/.test(s) && (/^[\w-]+(\.[\w-]+)+(\/.*)?$/.test(s) || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s));
+        }
+        function hrefFor(val) {
+            const s = clean(val);
+            if (/^https?:\/\//i.test(s)) return s;
+            if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s)) return "mailto:" + s;
+            return "http://" + s;
+        }
+
+        // The catalogue is itself Google-grounded, so when we don't have a
+        // verified link we hand the user a context-rich Google search instead
+        // of a dead end. Qualifiers + location make results land on target.
+        const SEARCH_QUALIFIERS = {
+            agencies: "sync licensing agency music submission",
+            supervisors: "music supervisor submit music contact",
+            platforms: "music sync submission",
+            grants: "grant for musicians how to apply",
+            festivals: "festival submit music application",
+            indie_games: "indie game music composer contact",
+            ad_agencies: "advertising agency music submission contact",
+            music_libraries: "production music library submit music",
+            competitions: "music competition entry submission",
+            restricted_resources: "music submission"
+        };
+        function googleSearchUrl(item, config, tab) {
+            const name = clean(item[config.titleKey]) || "";
+            const loc = clean(item.location) || clean(item.regions) || "";
+            const q = `"${name}" ${SEARCH_QUALIFIERS[tab] || "music sync"} ${loc}`.trim();
+            return "https://www.google.com/search?q=" + encodeURIComponent(q);
+        }
+
+        const MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+        function extractDates(str) {
+            const s = String(str || ""); const out = []; let m;
+            const re1 = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b/gi;
+            while ((m = re1.exec(s))) out.push(new Date(+m[3], MONTHS[m[1].slice(0,3).toLowerCase()], +m[2]));
+            const re2 = /\b(\d{4})-(\d{1,2})-(\d{1,2})\b/g;
+            while ((m = re2.exec(s))) out.push(new Date(+m[1], +m[2]-1, +m[3]));
+            const re3 = /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g;
+            while ((m = re3.exec(s))) out.push(new Date(+m[3], +m[1]-1, +m[2]));
+            const re4 = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{4})\b/gi;
+            while ((m = re4.exec(s))) out.push(new Date(+m[2], MONTHS[m[1].slice(0,3).toLowerCase()]+1, 0));
+            return out.filter(d => !isNaN(d));
+        }
+        function latestDeadline(item) {
+            const fields = [item.deadlines, item.application_window, item.application_deadline, item.submission_deadline];
+            let latest = null;
+            fields.forEach(f => extractDates(f).forEach(d => { if (!latest || d > latest) latest = d; }));
+            return latest;
+        }
+        function isExpired(item) {
+            const d = latestDeadline(item);
+            if (!d) return false;
+            const today = new Date(); today.setHours(0,0,0,0);
+            return d < today;
+        }
+        function isVacant(item, config) {
+            const hasDesc = clean(item[config.descKey]).length > 0;
+            const hasUrl = isRealUrl(item[config.urlKey]);
+            const hasContact = isRealUrl(item[config.contactKey]) || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean(item[config.contactKey]));
+            const hasPill = (config.pills || []).some(k => clean(item[k]).length > 0);
+            return !(hasDesc || hasUrl || hasContact || hasPill);
+        }
+
+        // Cleaned, de-duplicated, non-expired, non-vacant records for a tab.
+        const _recordCache = {};
+        function getRecords(tab) {
+            if (_recordCache[tab]) return _recordCache[tab];
+            const config = categoryConfigs[tab];
+            const out = [], seen = new Set();
+            (catalogueData[tab] || []).forEach(item => {
+                if (!config || isExpired(item) || isVacant(item, config)) return;
+                const key = (clean(item[config.titleKey]) || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+                if (key && seen.has(key)) return;
+                if (key) seen.add(key);
+                out.push(item);
+            });
+            _recordCache[tab] = out;
+            return out;
+        }
+
+        // ==========================================
+        // RELEVANCE — urgency tiers, geographic scope, region & ranking.
+        // Lets users separate "act now" from "good to know" and filter to
+        // opportunities that actually matter where they live.
+        // ==========================================
+        let regionFilter = "all";    // "all" | a region label
+        let urgencyFilter = "all";   // "all" | "act" | "evergreen"
+
+        const DAY = 86400000;
+        function urgencyTier(item) {
+            const d = latestDeadline(item);
+            if (!d) return { tier: "evergreen", label: "Evergreen", color: "#34d399" };
+            const days = Math.ceil((d.getTime() - new Date().setHours(0,0,0,0)) / DAY);
+            if (days <= 30) return { tier: "act",  label: days <= 0 ? "Closing" : `Closes in ${days}d`, color: "#fb7185" };
+            if (days <= 90) return { tier: "soon", label: `Apply by ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`, color: "#fbbf24" };
+            return { tier: "scheduled", label: `Apply by ${d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`, color: "#22d3ee" };
+        }
+
+        // Some opportunities are inherently location-bound (festivals, grants);
+        // most others you can pursue from anywhere.
+        const LOCAL_CATEGORIES = new Set(["festivals", "grants"]);
+        function recordScope(tab) { return LOCAL_CATEGORIES.has(tab) ? "local" : "global"; }
+
+        const CA_PROV = /\b(BC|British Columbia|Alberta|AB|Saskatchewan|SK|Manitoba|MB|Ontario|ON|Quebec|QC|Nova Scotia|New Brunswick|Newfoundland|Yukon|Nunavut|Northwest Territories|PEI|Prince Edward)\b/i;
+        const US_STATE = /\b(AL|AK|AZ|AR|CA|California|CO|Colorado|CT|DE|FL|Florida|GA|Georgia|HI|ID|IL|Illinois|IN|IA|KS|KY|LA|ME|MD|MA|Massachusetts|MI|Michigan|MN|MS|MO|MT|NE|NV|Nevada|NH|NJ|NM|NY|New York|NC|ND|OH|Ohio|OK|OR|Oregon|PA|Pennsylvania|RI|SC|SD|TN|Tennessee|TX|Texas|UT|VT|VA|Virginia|WA|Washington|WV|WI|Wisconsin|WY|USA|United States)\b/;
+        function recordRegion(item) {
+            const loc = clean(item.location) || clean(item.regions) || "";
+            if (!loc) return "";
+            if (/\b(canada|canadian)\b/i.test(loc) || CA_PROV.test(loc)) return "Canada";
+            if (/\b(uk|united kingdom|england|london|scotland|wales)\b/i.test(loc)) return "United Kingdom";
+            if (/\b(usa|united states)\b/i.test(loc) || US_STATE.test(loc)) return "United States";
+            if (/\b(australia|sydney|melbourne)\b/i.test(loc)) return "Australia";
+            const tail = loc.split(",").pop().trim();
+            return tail.length > 2 ? tail : "";
+        }
+
+        function actionabilityScore(item, config) {
+            let s = 0;
+            if (isRealUrl(item[config.urlKey])) s += 3;
+            if (isRealUrl(item[config.contactKey]) || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean(item[config.contactKey]))) s += 2;
+            const desc = clean(item[config.descKey]);
+            s += desc.length > 60 ? 2 : (desc ? 1 : 0);
+            (config.pills || []).forEach(k => { if (clean(item[k])) s += 1; });
+            const t = urgencyTier(item).tier;
+            if (t === "act") s += 2; else if (t === "soon") s += 1;
+            return s;
+        }
+
+        // Records after region + urgency filters, ranked best-first.
+        function getFilteredRecords(tab) {
+            const config = categoryConfigs[tab];
+            let recs = getRecords(tab).slice();
+            if (urgencyFilter === "act")            recs = recs.filter(it => !!latestDeadline(it));
+            else if (urgencyFilter === "evergreen") recs = recs.filter(it => !latestDeadline(it));
+            if (regionFilter !== "all") {
+                recs = recs.filter(it => recordScope(tab) === "global" || recordRegion(it) === regionFilter);
+            }
+            recs.sort((a, b) => actionabilityScore(b, config) - actionabilityScore(a, config));
+            return recs;
+        }
+
         let activeTab = "agencies";
         let currentView = "showcase"; // "showcase" or "expanded"
         let searchQuery = "";
@@ -416,10 +601,15 @@
         document.addEventListener('DOMContentLoaded', init);
 
         function init() {
+            // Land on the first category that has clean records.
+            const firstWithData = Object.keys(categoryConfigs).find(k => getRecords(k).length > 0);
+            if (firstWithData) activeTab = firstWithData;
+
             renderNav();
+            setupFilters();
             renderStats();
             switchTab(activeTab);
-            
+
             // Map Modal Logic
             document.getElementById('open-map-btn').addEventListener('click', () => {
                 const m = document.getElementById('map-modal');
@@ -437,6 +627,45 @@
             });
 
             setupRolodexInteraction();
+        }
+
+        function refreshCurrentView() {
+            if (currentView === "showcase") initCarousel(); else renderExpandedGrid();
+            updateFilterCount();
+        }
+        function updateFilterCount() {
+            const el = document.getElementById("filter-count");
+            if (!el) return;
+            const n = getFilteredRecords(activeTab).length;
+            const total = getRecords(activeTab).length;
+            el.innerText = (n === total) ? `${total} shown` : `${n} of ${total} shown`;
+        }
+        function applyUrgencyStyles() {
+            document.querySelectorAll(".urg-btn").forEach(b => {
+                const active = b.dataset.urg === urgencyFilter;
+                b.className = "urg-btn px-3 py-1 rounded-full transition-colors " + (active ? "bg-primary/15 text-primary" : "text-outline hover:text-on-surface");
+            });
+        }
+        function setupFilters() {
+            // Region options derived from the locations present in the data.
+            const counts = {};
+            Object.keys(categoryConfigs).forEach(tab => {
+                getRecords(tab).forEach(it => {
+                    const r = recordRegion(it);
+                    if (r) counts[r] = (counts[r] || 0) + 1;
+                });
+            });
+            const select = document.getElementById("region-select");
+            Object.keys(counts).sort((a, b) => counts[b] - counts[a]).forEach(r => {
+                const o = document.createElement("option");
+                o.value = r; o.text = `${r} (${counts[r]})`;
+                select.appendChild(o);
+            });
+            select.addEventListener("change", e => { regionFilter = e.target.value; refreshCurrentView(); });
+            document.querySelectorAll(".urg-btn").forEach(b => {
+                b.addEventListener("click", () => { urgencyFilter = b.dataset.urg; applyUrgencyStyles(); refreshCurrentView(); });
+            });
+            applyUrgencyStyles();
         }
 
         function toggleView() {
@@ -472,8 +701,9 @@
             
             Object.keys(categoryConfigs).forEach(key => {
                 const config = categoryConfigs[key];
-                const items = catalogueData[key] || [];
-                
+                const items = getRecords(key);
+                if (items.length === 0) return; // hide empty categories (e.g. indie_games)
+
                 const a = document.createElement("a");
                 a.id = `nav-${key}`;
                 a.onclick = (e) => { e.preventDefault(); switchTab(key); };
@@ -507,16 +737,17 @@
             } else {
                 renderExpandedGrid();
             }
+            updateFilterCount();
         }
 
         function renderStats() {
             const banner = document.getElementById("stats-banner");
             banner.innerHTML = "";
 
-            const totalAgencies = (catalogueData.agencies || []).length;
-            const totalSupervisors = (catalogueData.supervisors || []).length;
-            const totalLibraries = (catalogueData.music_libraries || []).length;
-            const totalPlatforms = (catalogueData.platforms || []).length;
+            const totalAgencies = getRecords("agencies").length;
+            const totalSupervisors = getRecords("supervisors").length;
+            const totalLibraries = getRecords("music_libraries").length;
+            const totalPlatforms = getRecords("platforms").length;
 
             const stats = [
                 { label: "Sync Agencies", value: totalAgencies, color: "var(--primary)" },
@@ -546,9 +777,9 @@
             currAngle = 0; velocity = 0;
             if (animationFrame) cancelAnimationFrame(animationFrame);
 
-            const items = catalogueData[activeTab] || [];
+            const items = getFilteredRecords(activeTab);
             if (items.length === 0) {
-                carousel.innerHTML = `<div class="carousel-cell flex items-center justify-center text-outline">No records found.</div>`;
+                carousel.innerHTML = `<div class="carousel-cell flex items-center justify-center text-outline">No records match these filters.</div>`;
                 return;
             }
 
@@ -587,48 +818,76 @@
 
                 cell.className = themeClasses;
 
-                const title = item[config.titleKey] || "Untitled";
-                const subtitle = item[config.subtitleKey] || "";
-                const desc = item[config.descKey] || "No details provided.";
-                const link = item[config.urlKey] || "#";
+                const title = clean(item[config.titleKey]) || "Untitled";
+                const subtitle = clean(item[config.subtitleKey]);
+                const desc = clean(item[config.descKey]) || "Details available at the source — open it to learn more.";
+                const hasUrl = isRealUrl(item[config.urlKey]);
+                const contactClean = clean(item[config.contactKey]);
+                const contactIsLink = isRealUrl(item[config.contactKey]) || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contactClean);
+
+                // Surface the previously-hidden fields as chips.
+                let pillsHtml = "";
+                (config.pills || []).forEach(k => {
+                    const v = clean(item[k]);
+                    if (v) pillsHtml += `<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/10 border border-white/15 ${iconColor}">${v}</span>`;
+                });
+
+                // Urgency-driven status: separates "act now" from "good to know".
+                const tier = urgencyTier(item);
+                const statusRaw = clean(item.submission_status);
+                const badgeLabel = statusRaw || tier.label;
+                const badgeHtml = `<span style="background:${tier.color}22; border-color:${tier.color}88; color:${tier.color};" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border">${badgeLabel}</span>`;
+                cell.style.borderColor = tier.color + "99"; // color-code the whole card by urgency
+
+                // CTA: deep link when we have one, else a context-rich Google
+                // search. A subtle search icon is always offered as "dig deeper".
+                const gUrl = googleSearchUrl(item, config, activeTab);
+                let primaryHtml;
+                if (hasUrl) {
+                    primaryHtml = `<a href="${hrefFor(item[config.urlKey])}" target="_blank" class="flex-1 ${actionBtn} text-xs font-bold uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 tactile-btn border border-black/10">Visit Resource <span class="material-symbols-outlined text-[18px]">open_in_new</span></a>`;
+                } else if (contactIsLink) {
+                    primaryHtml = `<a href="${hrefFor(item[config.contactKey])}" target="_blank" class="flex-1 ${actionBtn} text-xs font-bold uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 tactile-btn border border-black/10">Get in touch <span class="material-symbols-outlined text-[18px]">mail</span></a>`;
+                } else {
+                    primaryHtml = `<a href="${gUrl}" target="_blank" class="flex-1 ${actionBtn} text-xs font-bold uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 tactile-btn border border-black/10">Search Google <span class="material-symbols-outlined text-[18px]">travel_explore</span></a>`;
+                }
+                const secondaryHtml = (hasUrl || contactIsLink)
+                    ? `<a href="${gUrl}" target="_blank" title="Search Google for more" class="w-14 flex items-center justify-center rounded-xl border border-black/10 bg-black/10 ${iconColor} tactile-btn"><span class="material-symbols-outlined text-[20px]">travel_explore</span></a>`
+                    : "";
+                const ctaHtml = primaryHtml + secondaryHtml;
+                const contactLine = (contactClean && !contactIsLink && contactClean !== subtitle)
+                    ? `<div class="flex items-center gap-2 text-xs font-mono opacity-70 mt-3 pt-3 border-t border-white/10"><span class="material-symbols-outlined text-[14px]">alternate_email</span><span class="truncate">${contactClean}</span></div>`
+                    : "";
 
                 cell.innerHTML = `
-                    <div class="flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2 h-full">
+                    <div class="flex flex-col gap-5 overflow-y-auto custom-scrollbar pr-2 h-full">
                         <div class="flex justify-between items-start">
                             <div class="w-14 h-14 rounded-2xl bg-black/10 border border-white/20 flex items-center justify-center flex-shrink-0 shadow-inner">
                                 <span class="material-symbols-outlined text-3xl ${iconColor}">${config.icon}</span>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-black/10 border border-white/20 ${iconColor}">Verified</span>
+                                ${badgeHtml}
                                 <span class="text-[10px] font-mono opacity-50">RECORD ${i+1}/${panelCount}</span>
                             </div>
                         </div>
-                        
+
                         <div>
                             <h2 class="text-3xl font-bold ${titleColor} tracking-tight leading-tight">${title}</h2>
-                            <div class="flex items-center gap-3 mt-2 ${subTextColor} font-medium text-sm">
-                                ${subtitle ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">info</span>${subtitle}</span>` : ''}
-                            </div>
+                            ${subtitle ? `<div class="flex items-center gap-3 mt-2 ${subTextColor} font-medium text-sm"><span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">info</span>${subtitle}</span></div>` : ''}
                         </div>
+
+                        ${pillsHtml ? `<div class="flex flex-wrap gap-2">${pillsHtml}</div>` : ''}
 
                         <div class="p-5 rounded-2xl bg-black/5 border border-white/10 relative overflow-hidden flex-1">
                             <h3 class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-2 flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[16px]">subject</span>Details
                             </h3>
-                            <p class="text-sm leading-relaxed opacity-90 font-light">
-                                ${desc}
-                            </p>
+                            <p class="text-sm leading-relaxed opacity-90 font-light">${desc}</p>
+                            ${contactLine}
                         </div>
-                        
-                        <div class="pt-4 flex gap-3">
-                            <a href="${link.startsWith('http') ? link : 'http://'+link}" target="_blank" class="flex-1 ${actionBtn} text-xs font-bold uppercase tracking-widest py-4 rounded-xl flex items-center justify-center gap-2 tactile-btn border border-black/10">
-                                Visit Resource <span class="material-symbols-outlined text-[18px]">open_in_new</span>
-                            </a>
-                        </div>
+
+                        ${ctaHtml ? `<div class="pt-1 flex gap-3">${ctaHtml}</div>` : ''}
                     </div>
                 `;
-                // Place card on the cylinder
-                cell.style.transform = `rotateX(${theta * i}deg) translateZ(${radius}px)`;
                 carousel.appendChild(cell);
 
                 const dot = document.createElement('div');
@@ -641,31 +900,51 @@
         function updateCarousel() {
             if (panelCount === 0) return;
 
-            // Rotate the whole drum — stitch-style true cylinder
-            carousel.style.transform = `translateZ(-${radius}px) rotateX(${-currAngle}deg)`;
+            // ---- "Over the hill" arc -------------------------------------
+            // Each card is placed individually by its distance from centre,
+            // so the deck crests at the front (full size, facing you) and
+            // cascades DOWN + BACK in z on both sides — a waterfall over a
+            // hill, not a flat spinning wheel. Tune the feel here:
+            const SPREAD   = 28;    // degrees of arc per card-step
+            const DEPTH    = 1500;  // px each card recedes going over the hill
+            const DROP     = 300;   // px each card falls on the way down
+            const TILT     = 50;    // max lean (deg) as a card goes over the crest
+            const MINSCALE = 0.45;  // smallest a far card shrinks to
+            const VISIBLE  = 5;     // cards rendered on each side of centre
+            // --------------------------------------------------------------
 
-            const rawIndex = Math.round(currAngle / theta) % panelCount;
-            selectedIndex = rawIndex < 0 ? panelCount + rawIndex : rawIndex;
+            selectedIndex = ((Math.round(currAngle / theta) % panelCount) + panelCount) % panelCount;
 
             const cells = carousel.children;
             for (let i = 0; i < cells.length; i++) {
-                const angle = theta * i;
-                let relAngle = (angle - currAngle) % 360;
-                if (relAngle > 180)  relAngle -= 360;
-                if (relAngle < -180) relAngle += 360;
-                const dist = Math.abs(relAngle);
+                let rel = (theta * i - currAngle) % 360;
+                if (rel > 180)  rel -= 360;
+                if (rel < -180) rel += 360;
+                const step   = rel / theta;        // signed card-steps from centre
+                const adStep = Math.abs(step);
 
-                if (dist < theta / 2) {
+                if (adStep > VISIBLE) { cells[i].style.display = 'none'; continue; }
+                cells[i].style.display = '';
+
+                const a    = step * SPREAD * Math.PI / 180;       // arc angle
+                const z    = (Math.cos(a) - 1) * DEPTH;           // recede both sides
+                const y    = (1 - Math.cos(a)) * DROP;            // fall both sides
+                const sc   = Math.max(MINSCALE, Math.pow(Math.cos(a), 1.6)); // shrink faster both sides
+                const tilt = Math.max(-TILT, Math.min(TILT, step * (TILT / 2)));
+
+                cells[i].style.transform =
+                    `translateZ(${z}px) translateY(${y}px) rotateX(${tilt}deg) scale(${sc})`;
+                cells[i].style.zIndex = Math.round(1000 - adStep * 10).toString();
+
+                if (adStep < 0.5) {
                     cells[i].classList.remove('is-inactive');
                     cells[i].style.opacity = '1';
                     cells[i].style.filter = 'none';
-                    cells[i].style.zIndex = '100';
                 } else {
                     cells[i].classList.add('is-inactive');
-                    const factor = Math.max(0, 1 - dist / 90);
-                    cells[i].style.opacity = (factor * 0.75 + 0.05).toString();
-                    cells[i].style.filter = `brightness(${0.3 + factor * 0.3}) blur(${Math.min(6, dist / 20)}px)`;
-                    cells[i].style.zIndex = Math.floor(100 - dist).toString();
+                    const f = Math.max(0, 1 - adStep / VISIBLE);
+                    cells[i].style.opacity = (0.12 + f * 0.88).toString();
+                    cells[i].style.filter = `brightness(${0.45 + f * 0.55}) blur(${Math.min(5, adStep)}px)`;
                 }
             }
 
@@ -776,7 +1055,7 @@
             const container = document.getElementById("opp-container");
             container.innerHTML = "";
 
-            const items = catalogueData[activeTab] || [];
+            const items = getFilteredRecords(activeTab);
             const config = categoryConfigs[activeTab];
 
             const filteredItems = items.filter(item => {
@@ -795,20 +1074,25 @@
                 const card = document.createElement("div");
                 card.className = "bg-surface-lowest border border-outline-variant/40 rounded-2xl p-6 flex flex-col bento-card relative overflow-hidden group";
 
-                const title = item[config.titleKey] || "Untitled";
-                const subtitle = item[config.subtitleKey] || "";
-                const desc = item[config.descKey] || "No description provided.";
-                const link = item[config.urlKey] || "#";
-                
-                let pillsHtml = "";
+                const title = clean(item[config.titleKey]) || "Untitled";
+                const subtitle = clean(item[config.subtitleKey]);
+                const desc = clean(item[config.descKey]) || "Details available at the source.";
+                const hasUrl = isRealUrl(item[config.urlKey]);
+                const contactClean = clean(item[config.contactKey]);
+                const contactIsLink = isRealUrl(item[config.contactKey]) || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contactClean);
+
+                const tier = urgencyTier(item);
+                let pillsHtml = `<span style="background:${tier.color}22; border-color:${tier.color}88; color:${tier.color};" class="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md border">${tier.label}</span>`;
                 if (config.pills) {
                     config.pills.forEach(pillKey => {
-                        if (item[pillKey]) {
-                            pillsHtml += `<span class="bg-surface-variant text-outline text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border border-outline-variant/50">${item[pillKey]}</span>`;
+                        const v = clean(item[pillKey]);
+                        if (v) {
+                            pillsHtml += `<span class="bg-surface-variant text-outline text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border border-outline-variant/50">${v}</span>`;
                         }
                     });
                 }
 
+                card.style.borderColor = tier.color + "55"; // color-code by urgency
                 card.innerHTML = `
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <span class="material-symbols-outlined text-6xl text-primary">${config.icon}</span>
@@ -827,12 +1111,15 @@
                         </div>
                         
                         <div class="mt-auto pt-4 border-t border-outline-variant/20 flex justify-between items-center">
-                            <div class="text-xs font-mono text-outline truncate max-w-[60%]">
-                                ${item[config.contactKey] || "No contact info"}
+                            <div class="text-xs font-mono text-outline truncate max-w-[55%]">
+                                ${contactClean && !contactIsLink ? contactClean : ""}
                             </div>
-                            <a href="${link.startsWith('http') ? link : 'http://'+link}" target="_blank" class="text-primary hover:text-white bg-primary/10 hover:bg-primary transition-colors p-2 rounded-lg tactile-btn">
-                                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-                            </a>
+                            <div class="flex items-center gap-2">
+                                ${(hasUrl || contactIsLink) ? `<a href="${googleSearchUrl(item, config, activeTab)}" target="_blank" title="Search Google for more" class="text-outline hover:text-primary transition-colors p-2 rounded-lg tactile-btn"><span class="material-symbols-outlined text-[20px]">travel_explore</span></a>` : ''}
+                                ${(hasUrl || contactIsLink)
+                                    ? `<a href="${hrefFor(hasUrl ? item[config.urlKey] : item[config.contactKey])}" target="_blank" title="${hasUrl ? 'Visit resource' : 'Contact'}" class="text-primary hover:text-white bg-primary/10 hover:bg-primary transition-colors p-2 rounded-lg tactile-btn"><span class="material-symbols-outlined text-[20px]">${hasUrl ? 'arrow_forward' : 'mail'}</span></a>`
+                                    : `<a href="${googleSearchUrl(item, config, activeTab)}" target="_blank" class="text-primary hover:text-white bg-primary/10 hover:bg-primary transition-colors px-3 py-2 rounded-lg tactile-btn text-xs font-bold uppercase tracking-wider flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">travel_explore</span>Search</a>`}
+                            </div>
                         </div>
                     </div>
                 `;
