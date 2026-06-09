@@ -76,12 +76,12 @@
         .glow-cyan { box-shadow: 0 0 20px var(--primary-glow); }
         .glow-crimson { box-shadow: 0 0 20px var(--secondary-glow); }
 
-        /* 3D Scene Styles for Rolodex - Solid Mechanical */
+        /* 3D Scene Styles for Rolodex - True Cylinder */
         .scene {
             width: 100%;
             height: 100%;
             flex: 1;
-            perspective: 1500px;
+            perspective: 2000px;
             position: relative;
             display: flex;
             align-items: flex-end;
@@ -96,44 +96,34 @@
         }
         .carousel-cell {
             position: absolute;
-            width: 90vw;
-            max-width: 1100px;
-            height: 65vh;
-            max-height: 650px;
+            width: 680px;
+            height: 480px;
             left: 50%;
-            transform: translateX(-50%); /* Center horizontally */
-            bottom: 80px;
-            background-color: #171f33 !important; /* Solid surface-container */
+            margin-left: -340px;
+            bottom: 90px;
+            background-color: #171f33 !important;
             backdrop-filter: none !important;
-            border: 2px solid #3c494c !important; /* Thicker mechanical border */
+            border: 2px solid #3c494c !important;
             border-radius: 24px;
             backface-visibility: hidden;
             padding: 32px;
             display: flex;
             flex-direction: column;
-            transform-origin: bottom center; /* MECHANICAL ANCHOR */
+            transform-origin: center bottom;
             box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s, filter 0.4s;
+            transition: opacity 0.3s, filter 0.3s;
         }
-        
         .carousel-cell.bg-on-surface {
-            background-color: #dae2fd !important; /* Solid Light */
+            background-color: #dae2fd !important;
             color: #0b1326 !important;
         }
         .carousel-cell.bg-primary {
-            background-color: #22d3ee !important; /* Solid Cyan */
+            background-color: #22d3ee !important;
         }
         .carousel-cell.bg-secondary {
-            background-color: #aa0266 !important; /* Solid Crimson */
-        }
-        
-        .carousel-cell.is-inactive {
-            filter: brightness(0.4) grayscale(0.2) !important;
-            pointer-events: none;
+            background-color: #aa0266 !important;
         }
         .carousel-cell.is-inactive {
-            opacity: 0.1;
-            filter: blur(2px);
             pointer-events: none;
         }
         .drag-handle { cursor: grab; }
@@ -414,9 +404,8 @@
         const carousel = document.getElementById('carousel');
         const navDots = document.getElementById('nav-dots');
         let panelCount = 0;
-        const panelHeight = 400;
         let theta = 0;
-        let radius = 0;
+        let radius = 500;
         let currAngle = 0;
         let selectedIndex = 0;
         let isDragging = false;
@@ -555,14 +544,17 @@
             carousel.innerHTML = "";
             navDots.innerHTML = "";
             currAngle = 0; velocity = 0;
-            
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+
             const items = catalogueData[activeTab] || [];
             if (items.length === 0) {
                 carousel.innerHTML = `<div class="carousel-cell flex items-center justify-center text-outline">No records found.</div>`;
                 return;
             }
-            
+
             panelCount = items.length;
+            theta = 360 / panelCount;
+            radius = Math.max(500, panelCount * 55);
 
             const config = categoryConfigs[activeTab];
 
@@ -635,6 +627,8 @@
                         </div>
                     </div>
                 `;
+                // Place card on the cylinder
+                cell.style.transform = `rotateX(${theta * i}deg) translateZ(${radius}px)`;
                 carousel.appendChild(cell);
 
                 const dot = document.createElement('div');
@@ -646,60 +640,32 @@
 
         function updateCarousel() {
             if (panelCount === 0) return;
-            
-            // currAngle represents currentRotation index
-            const currentRotation = currAngle;
-            
-            // Calculate active index
-            selectedIndex = Math.round(currentRotation);
-            if (selectedIndex < 0) selectedIndex = 0;
-            if (selectedIndex >= panelCount) selectedIndex = panelCount - 1;
+
+            // Rotate the whole drum — stitch-style true cylinder
+            carousel.style.transform = `translateZ(-${radius}px) rotateX(${-currAngle}deg)`;
+
+            const rawIndex = Math.round(currAngle / theta) % panelCount;
+            selectedIndex = rawIndex < 0 ? panelCount + rawIndex : rawIndex;
 
             const cells = carousel.children;
             for (let i = 0; i < cells.length; i++) {
-                const delta = i - currentRotation;
-                let rotation = 0;
-                let zIndex = 0;
-                let zOffset = 0;
+                const angle = theta * i;
+                let relAngle = (angle - currAngle) % 360;
+                if (relAngle > 180)  relAngle -= 360;
+                if (relAngle < -180) relAngle += 360;
+                const dist = Math.abs(relAngle);
 
-                let scale = 1;
-                let yOffset = 0;
-
-                if (delta > 0) {
-                    // Card is back/inactive in the queue
-                    const factor = Math.min(1, delta);
-                    rotation = -90 * factor;
-                    zIndex = panelCount - i;
-                    
-                    // Stagger backwards and upwards to create a grand staircase
-                    zOffset = -delta * 60; 
-                    yOffset = -delta * 30; 
-                } else if (delta < 0) {
-                    // Card is flipped/front
-                    const factor = Math.min(1, -delta);
-                    rotation = 110 * factor;
-                    zIndex = i;
-                    
-                    // Flipped cards stack closely at the bottom
-                    zOffset = delta * 15;
-                    yOffset = 0;
-                } else {
-                    // Active card pops out
-                    rotation = 0;
-                    zIndex = panelCount + 10;
-                    scale = 1.05;
-                }
-
-                // Apply transform with centering X (due to left: 50%)
-                cells[i].style.transform = `translateX(-50%) translateZ(${zOffset}px) translateY(${yOffset}px) rotateX(${rotation}deg) scale(${scale})`;
-                cells[i].style.zIndex = zIndex;
-                
-                // Visual effects
-                const dist = Math.abs(delta);
-                if (dist < 0.5) {
+                if (dist < theta / 2) {
                     cells[i].classList.remove('is-inactive');
+                    cells[i].style.opacity = '1';
+                    cells[i].style.filter = 'none';
+                    cells[i].style.zIndex = '100';
                 } else {
                     cells[i].classList.add('is-inactive');
+                    const factor = Math.max(0, 1 - dist / 90);
+                    cells[i].style.opacity = (factor * 0.75 + 0.05).toString();
+                    cells[i].style.filter = `brightness(${0.3 + factor * 0.3}) blur(${Math.min(6, dist / 20)}px)`;
+                    cells[i].style.zIndex = Math.floor(100 - dist).toString();
                 }
             }
 
@@ -709,34 +675,26 @@
             }
         }
 
-        function setupRolodexInteraction() {
-            const rc = document.getElementById('rolodex-canvas');
-            
-            function snapToNearest() {
-                if (panelCount === 0) return;
-                
-                let target = Math.round(currAngle);
-                if (target < 0) target = 0;
-                if (target >= panelCount) target = panelCount - 1;
-                
-                const start = currAngle;
-                const change = target - start;
-                let currentTime = 0;
-                const duration = 25; // frames
-
-                function animateSnap() {
-                    currentTime++;
-                    const t = currentTime / duration;
-                    const ease = 1 - Math.pow(1 - t, 3);
-                    currAngle = start + change * ease;
-                    updateCarousel();
-                    if (currentTime < duration) {
-                        animationFrame = requestAnimationFrame(animateSnap);
-                    }
-                }
-                if (animationFrame) cancelAnimationFrame(animationFrame);
-                animateSnap();
+        function snapToNearest() {
+            if (panelCount === 0) return;
+            const snapAngle = Math.round(currAngle / theta) * theta;
+            const start = currAngle;
+            const change = snapAngle - start;
+            let currentTime = 0;
+            const duration = 25;
+            function animateSnap() {
+                currentTime++;
+                const ease = 1 - Math.pow(1 - currentTime / duration, 3);
+                currAngle = start + change * ease;
+                updateCarousel();
+                if (currentTime < duration) animationFrame = requestAnimationFrame(animateSnap);
             }
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+            animateSnap();
+        }
+
+        function setupRolodexInteraction() {
+            const rc = document.getElementById('view-showcase');
 
             rc.addEventListener('mousedown', (e) => {
                 isDragging = true; lastFrameY = e.clientY; velocity = 0;
@@ -745,48 +703,43 @@
             window.addEventListener('mousemove', (e) => {
                 if (!isDragging) return;
                 const deltaY = e.clientY - lastFrameY; lastFrameY = e.clientY;
-                // Map Y pixels to rotation index
-                currAngle += (deltaY * 0.015); 
-                velocity = deltaY * 0.02;
+                currAngle += deltaY * 0.15;
+                velocity = deltaY * 0.4;
                 updateCarousel();
             });
             window.addEventListener('mouseup', () => {
                 if (!isDragging) return;
-                isDragging = false; applyInertia();
+                isDragging = false;
+                applyInertia();
             });
             rc.addEventListener('wheel', (e) => {
                 e.preventDefault();
-                currAngle += (e.deltaY * 0.005); updateCarousel();
+                currAngle += e.deltaY * 0.08;
+                updateCarousel();
                 clearTimeout(window.wheelTimeout);
                 window.wheelTimeout = setTimeout(snapToNearest, 200);
             }, { passive: false });
 
             function applyInertia() {
-                if (Math.abs(velocity) < 0.005) { snapToNearest(); return; }
-                currAngle += velocity; velocity *= 0.92;
-                
-                // Bounds
-                if (currAngle < -1 || currAngle > panelCount) {
-                    snapToNearest(); return;
-                }
-                
-                updateCarousel(); animationFrame = requestAnimationFrame(applyInertia);
+                if (Math.abs(velocity) < 0.2) { snapToNearest(); return; }
+                currAngle += velocity;
+                velocity *= 0.92;
+                updateCarousel();
+                animationFrame = requestAnimationFrame(applyInertia);
             }
         }
-        
-        function rotateToNext() { 
-            if (panelCount) { 
-                let target = Math.round(currAngle) + 1;
-                if (target >= panelCount) target = panelCount - 1;
-                animateTo(target); 
-            } 
+
+        function rotateToNext() {
+            if (panelCount) {
+                if (animationFrame) cancelAnimationFrame(animationFrame);
+                animateTo(Math.round(currAngle / theta) * theta + theta);
+            }
         }
-        function rotateToPrev() { 
-            if (panelCount) { 
-                let target = Math.round(currAngle) - 1;
-                if (target < 0) target = 0;
-                animateTo(target); 
-            } 
+        function rotateToPrev() {
+            if (panelCount) {
+                if (animationFrame) cancelAnimationFrame(animationFrame);
+                animateTo(Math.round(currAngle / theta) * theta - theta);
+            }
         }
         function animateTo(target) {
             const start = currAngle;
@@ -799,10 +752,10 @@
                     updateCarousel();
                     return;
                 }
-                const ease = 1 - Math.pow(1 - t, 4);
+                const ease = 1 - Math.pow(1 - t, 5);
                 currAngle = start + change * ease;
                 updateCarousel();
-                requestAnimationFrame(frame);
+                animationFrame = requestAnimationFrame(frame);
             }
             if (animationFrame) cancelAnimationFrame(animationFrame);
             frame();
