@@ -41,7 +41,7 @@ from mcp.client.stdio import stdio_client
 
 # Reuse the proven, already-traced web layer and catalogue writers.
 from scrape_utils import google_search_grounding, fetch_url, get_api_key
-from scrape_agent import (
+from catalogue_utils import (
     EMPTY_CATALOGUE,
     write_markdown_catalogue,
     write_html_dashboard,
