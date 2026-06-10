@@ -15,7 +15,10 @@ Usage:
 
 import json
 import sys
+from datetime import date
 from pathlib import Path
+
+import feedback_store
 
 CATALOGUE = Path(__file__).parent / "catalogue.json"
 RECORDS = Path(__file__).parent / "deck" / "records.js"
@@ -101,16 +104,105 @@ def map_entry(cat: str, e: dict) -> dict:
                 url=g("url"), contact=g("contact_info"))
 
 
+import re
+
+
+def _norm_name(name: str) -> str:
+    """Normalize a name for duplicate detection (case/punctuation/space-insensitive)."""
+    return re.sub(r"[^a-z0-9]", "", clean(name).lower())
+
+
+def _completeness(card: dict) -> int:
+    """How many useful fields a card actually fills — used to keep the richest dupe."""
+    score = 0
+    for k in ("subtitle", "desc", "url", "contact"):
+        if clean(card.get(k, "")):
+            score += 1
+    score += len(card.get("pills", []) or [])
+    return score
+
+
+_REAL_URL = re.compile(r"^https?://", re.I)
+
+
+def _has_real_url(card: dict) -> bool:
+    u = clean(card.get("url", ""))
+    return bool(u) and bool(_REAL_URL.match(u)) and "not specified" not in u.lower()
+
+
+# Best-first ordering: real URL first, then richer cards. Stable within ties.
+def _quality(card: dict):
+    return (1 if _has_real_url(card) else 0, _completeness(card))
+
+
+_MONTHS = {m: i for i, m in enumerate(
+    ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
+# "Now" for expiry decisions — the real current month, so expiry never goes stale.
+_TODAY = date.today()
+_NOW = (_TODAY.year, _TODAY.month)
+
+
+def is_expired(text: str) -> bool:
+    """Heuristic: True only when a deadline is clearly in the past with no future date.
+    Ongoing/evergreen/unknown deadlines return False (we keep them)."""
+    t = clean(text).lower()
+    if not t:
+        return False
+    if any(w in t for w in ("ongoing", "rolling", "year-round", "year round", "evergreen", "anytime")):
+        return False
+    past = future = False
+    for m, mi in _MONTHS.items():
+        for y in re.findall(rf"{m}[a-z]*\.?\s*\d*,?\s*(20\d\d)", t):
+            if (int(y), mi) < _NOW:
+                past = True
+            else:
+                future = True
+    if re.search(r"\b202[0-5]\b", t) and not future:
+        past = True
+    if ("closed" in t or "passed" in t) and not future:
+        past = True
+    return past and not future
+
+
+# Which catalogue field carries the deadline, per category (for expiry filtering).
+_DEADLINE_FIELD = {"grants": "deadlines", "competitions": "deadlines", "festivals": "application_window"}
+
+
 def build() -> list:
     data = json.loads(CATALOGUE.read_text())
+    blocked = feedback_store.blocked_ids()   # human flags survive regeneration
     records = []
     for cat in CATEGORY_ORDER:
+        # Collapse exact-duplicate names within a category, keeping the most
+        # complete card (the agent occasionally emits the same entity 2-3x).
+        best: dict = {}      # normalized name -> card
+        order: list = []     # preserve first-seen order
+        dl_field = _DEADLINE_FIELD.get(cat)
         for e in data.get(cat, []):
             if not isinstance(e, dict) or not clean(e.get("name", "")):
                 continue
+            # Skip anything the user flagged (expired/duplicate/hallucinated) — this
+            # is what makes a deck correction stick across rebuilds.
+            bid = feedback_store.block_key(cat, e.get("name", ""))
+            if bid in blocked:
+                continue
+            # Drop clearly-expired time-sensitive opportunities so stale dates
+            # never surface on a card (grants/competitions/festivals only).
+            if dl_field and is_expired(e.get(dl_field, "")):
+                continue
             card = map_entry(cat, e)
             card["cat"] = cat
-            records.append(card)
+            card["id"] = bid       # stable id shared with the deck + feedback store
+            key = _norm_name(e.get("name", ""))
+            if key not in best:
+                best[key] = card
+                order.append(key)
+            elif _completeness(card) > _completeness(best[key]):
+                best[key] = card   # replace with the richer duplicate, keep position
+        # Best-first within the category (stable): real URL + completeness lead.
+        cards = [best[k] for k in order]
+        cards.sort(key=_quality, reverse=True)
+        records.extend(cards)
     return records
 
 

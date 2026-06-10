@@ -41,6 +41,7 @@ from mcp.client.stdio import stdio_client
 
 # Reuse the proven, already-traced web layer and catalogue writers.
 from scrape_utils import google_search_grounding, fetch_url, get_api_key
+import feedback_store
 from catalogue_utils import (
     EMPTY_CATALOGUE,
     write_markdown_catalogue,
@@ -100,6 +101,28 @@ FAITHFULNESS_TEMPLATE = (
 # Lightweight call-anomaly guard (preserves the Arize-story budget check).
 _CALL_ABORT_THRESHOLD = 40
 _call_count = 0
+
+
+def _operator_corrections_block() -> str:
+    """Compact context block injected into scout/extractor prompts from feedback.json.
+
+    The deterministic merge-time blocklist is the safety net; this is the
+    'trust the model' path that steers it away from bad entries before it even searches.
+    """
+    by_reason = feedback_store.flags_by_reason()
+    if not any(by_reason.values()):
+        return ""
+    lines = ["=== OPERATOR CORRECTIONS (do not reproduce these) ==="]
+    if by_reason.get("hallucinated"):
+        lines.append("Previously flagged as NOT REAL / fabricated — do NOT include:")
+        lines.extend(f"  - {t}" for t in by_reason["hallucinated"])
+    if by_reason.get("expired"):
+        lines.append("Previously flagged as EXPIRED / closed — do NOT include:")
+        lines.extend(f"  - {t}" for t in by_reason["expired"])
+    if by_reason.get("duplicate"):
+        lines.append("Previously flagged as DUPLICATE — do NOT include:")
+        lines.extend(f"  - {t}" for t in by_reason["duplicate"])
+    return "\n".join(lines)
 
 
 # ── Structured-output schemas (Pydantic, for ADK output_schema) ───────────────
@@ -270,16 +293,23 @@ validator_agent = _schema_agent(
     Classification,
 )
 
-scout_agent = LlmAgent(
-    name="scout",
-    model=MODEL,
-    instruction="You are a music-industry scout. Use Google Search to survey the "
-    "current landscape of active sync-licensing hubs, supervisors, agencies, "
-    "festivals, brief platforms, ad agencies, production music libraries and "
-    "songwriting competitions relevant to the request. Summarise concrete, current "
-    "findings (names, places, dates) that a planner can turn into targeted searches.",
-    tools=[google_search],
-)
+def make_scout_agent(corrections: str = "") -> LlmAgent:
+    """Build the scout agent. Injecting today's date before the search means the live
+    Google-Search grounding can filter past-dated calls from the first result page."""
+    from datetime import date
+    today = date.today().strftime("%B %d, %Y")
+    base = (
+        f"Today is {today}. You are a music-industry scout. Use Google Search to survey "
+        "the current landscape of ACTIVE, OPEN sync-licensing hubs, supervisors, agencies, "
+        "festivals, brief platforms, ad agencies, production music libraries and songwriting "
+        "competitions relevant to the request. Focus on opportunities with future or ongoing "
+        "deadlines — skip anything whose deadline has clearly already passed. "
+        "Summarise concrete, current findings (names, places, dates) that a planner can "
+        "turn into targeted searches."
+    )
+    if corrections:
+        base = base + "\n\n" + corrections
+    return LlmAgent(name="scout", model=MODEL, instruction=base, tools=[google_search])
 
 planner_agent = _schema_agent(
     "planner",
@@ -470,18 +500,21 @@ async def record_faithfulness_examples_via_phoenix_mcp(examples: list[dict]) -> 
         return False
 
 
-async def scout(user_focus: str | None) -> str:
+async def scout(user_focus: str | None, corrections: str = "") -> str:
     """ADK scout agent surveys the live landscape via the Google Search tool."""
+    from datetime import date
+    year = date.today().year
     if user_focus:
         ask = (f"Survey current sync-licensing opportunities for '{user_focus}' across "
                f"agencies, supervisors, festivals, platforms, ad agencies, libraries and "
-               f"competitions for 2026–2027.")
+               f"competitions for {year}–{year+1}.")
     else:
-        ask = ("Survey the most active current sync-licensing hubs, supervisors, "
-               "festivals, brief platforms, ad agencies, production music libraries and "
-               "songwriting competitions with 2026–2027 submission windows.")
+        ask = (f"Survey the most active current sync-licensing hubs, supervisors, "
+               f"festivals, brief platforms, ad agencies, production music libraries and "
+               f"songwriting competitions with {year}–{year+1} submission windows.")
+    agent = make_scout_agent(corrections)
     try:
-        return await _run(scout_agent, ask)
+        return await _run(agent, ask)
     except Exception as e:
         print(f"Orchestrator: ADK scout failed ({e}) — falling back to direct grounding.")
         return await asyncio.to_thread(
@@ -551,7 +584,8 @@ async def plan_queries(scout_text: str, user_focus: str | None) -> dict:
         return _fallback_queries(user_focus)
 
 
-async def run_subagent(topic: str, query: str, faithfulness_agent: LlmAgent) -> dict:
+async def run_subagent(topic: str, query: str, faithfulness_agent: LlmAgent,
+                       corrections: str = "") -> dict:
     """Sub-agent: Google-Search grounding → scrape top URLs → ADK extractor → faithfulness check."""
     print(f"[Sub-Agent: {topic}] Searching: '{query}'...")
     search_res = await asyncio.to_thread(google_search_grounding, query, MODEL)
@@ -569,8 +603,10 @@ async def run_subagent(topic: str, query: str, faithfulness_agent: LlmAgent) -> 
     page_data = {u: t[:3000] for u, t in fetched if t and not t.startswith("Error")}
     combined = "\n".join(f"URL: {u}\n{t}" for u, t in page_data.items())
 
+    corrections_section = f"\n\n{corrections}" if corrections else ""
     context = (f"=== SEARCH FINDINGS FOR {topic.upper()} ===\n{search_res.get('text', '')}\n\n"
-               f"=== SCRAPED WEBPAGES ===\n{combined}\n\n"
+               f"=== SCRAPED WEBPAGES ===\n{combined}"
+               f"{corrections_section}\n\n"
                f"Extract all music opportunities related to '{topic}' from the above.")
     print(f"[Sub-Agent: {topic}] Structuring results...")
     try:
@@ -587,7 +623,7 @@ async def run_subagent(topic: str, query: str, faithfulness_agent: LlmAgent) -> 
     # instruction (see make_faithfulness_agent), so no decorative prefix. Score the
     # extracted output against the FULL scraped text, not a truncated head: the prior
     # combined[:2000] window cut off real evidence and produced false "fabricated"
-    # verdicts (e.g. rosters present at ~char 3000). Advisory only — never gates merges.
+    # verdicts (e.g. rosters present at ~char 3000). Scores < 0.4 now gate the merge.
     try:
         sample = json.dumps({k: v[:3] for k, v in data.items() if isinstance(v, list) and v},
                             indent=2)[:2500]
@@ -622,6 +658,13 @@ async def main(user_focus: str | None = None):
             return
         print(f"Orchestrator: Input validated — {reason}")
 
+    # Build operator corrections once — injected into scout + extractor prompts AND
+    # used as the merge-time blocklist so flagged entries can't re-enter the catalogue.
+    corrections = _operator_corrections_block()
+    blocked = feedback_store.blocked_ids()
+    if corrections:
+        print(f"Orchestrator: Operator corrections loaded — {len(blocked)} flagged entries blocked.")
+
     # Partner MCP (Arize Phoenix): source the faithfulness evaluator prompt from the
     # Phoenix registry at runtime (traced ADK MCP call) and let it drive the eval.
     faithfulness_instruction, mcp_sourced = await load_faithfulness_instruction()
@@ -640,27 +683,28 @@ async def main(user_focus: str | None = None):
             print(f"Orchestrator: Error loading catalogue: {e}")
     seen = {cat: {DEDUP_KEYS[cat](x) for x in final_catalogue[cat]} for cat in DEDUP_KEYS}
 
-    # Scout → plan.
+    # Scout → plan (today's date + corrections injected into scout instruction).
     print("Orchestrator: Scouting via ADK Google Search agent...")
-    scout_text = await scout(user_focus)
+    scout_text = await scout(user_focus, corrections)
     print("Orchestrator: Planning search strategy...")
     subagents = await plan_queries(scout_text, user_focus)
     if not subagents:
         print("Orchestrator: Run halted — no viable sub-agents.")
         return
 
-    # Run sub-agents concurrently.
+    # Run sub-agents concurrently (corrections also injected into extractor context).
     results = await asyncio.gather(*[
-        run_subagent(topic, query, faithfulness_agent)
+        run_subagent(topic, query, faithfulness_agent, corrections)
         for topic, query in subagents.items()
     ])
 
-    # Merge + dedup.
+    # Merge + dedup. Faithfulness < 0.4 now gates the whole batch (not just advisory).
+    # Per-item blocklist check ensures human-flagged entries never re-enter catalogue.
     print("Orchestrator: Merging results...")
     for res in results:
         f = res.get("_faithfulness")
         if f and f.get("score") is not None and f["score"] < 0.4:
-            print(f"Orchestrator: Skipping merge for topic '{f['topic']}' due to low faithfulness ({f['score']:.2f}): {f.get('explanation')}")
+            print(f"Orchestrator: BLOCKED merge for '{f['topic']}' — faithfulness {f['score']:.2f}: {f.get('explanation')}")
             continue
 
         for category, items in res.items():
@@ -671,6 +715,9 @@ async def main(user_focus: str | None = None):
                 continue
             for item in items:
                 try:
+                    bid = feedback_store.block_key(category, item.get("name", ""))
+                    if bid in blocked:
+                        continue
                     key = key_fn(item)
                     if key not in seen[category]:
                         seen[category].add(key)
@@ -682,8 +729,8 @@ async def main(user_focus: str | None = None):
     print(f"Orchestrator: Complete — {counts}")
     print(f"Orchestrator: {_call_count} ADK agent calls this run.")
 
-    # Close the Phoenix loop: write each sub-agent's faithfulness score back as a
-    # dataset example via the MCP, so the evals are inspectable in Phoenix over time.
+    # Close the Phoenix loop: faithfulness scores + human 'hallucinated' flags both
+    # written back as dataset examples — ground-truth fabricated labels from real use.
     if mcp_sourced or _phoenix_reachable():
         fexamples = []
         for res in results:
@@ -695,11 +742,20 @@ async def main(user_focus: str | None = None):
                     "metadata": {"explanation": f["explanation"], "model": MODEL,
                                  "source_chars": f["source_chars"], "focus": user_focus or "auto"},
                 })
+        hallucinated_flags = [fl for fl in feedback_store.load_flags()
+                              if fl.get("reason") == "hallucinated"]
+        for fl in hallucinated_flags:
+            fexamples.append({
+                "input": {"topic": fl["cat"], "query": f"human flag: {fl['title']}"},
+                "output": {"score": 0.0},
+                "metadata": {"explanation": f"Human-flagged as hallucinated: {fl['title']}",
+                             "model": "human", "source_chars": 0, "focus": user_focus or "auto"},
+            })
         if fexamples:
-            print(f"Orchestrator: Writing {len(fexamples)} faithfulness score(s) back to Phoenix "
-                  f"dataset '{FAITHFULNESS_DATASET}' (via MCP)...")
+            print(f"Orchestrator: Writing {len(fexamples)} faithfulness example(s) to Phoenix "
+                  f"dataset '{FAITHFULNESS_DATASET}' ({len(hallucinated_flags)} human flag(s))...")
             if await record_faithfulness_examples_via_phoenix_mcp(fexamples):
-                print("Orchestrator: Faithfulness scores recorded in Phoenix.")
+                print("Orchestrator: Faithfulness examples recorded in Phoenix.")
 
     # Save outputs.
     with open("catalogue.json", "w") as f:
@@ -739,10 +795,10 @@ if __name__ == "__main__":
             from openinference.instrumentation.google_adk import GoogleADKInstrumentor
             from openinference.instrumentation.google_genai import GoogleGenAIInstrumentor
 
-            try:
-                px.launch_app()
-            except Exception:
+            if _phoenix_reachable():
                 print("Orchestrator: Phoenix already running — connecting to existing instance.")
+            else:
+                px.launch_app()
             register(project_name="sync-licensing-agent")
             GoogleADKInstrumentor().instrument()
             GoogleGenAIInstrumentor().instrument()

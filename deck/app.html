@@ -13,7 +13,7 @@
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
   html,body{ height:100%; }
-  body{ background:var(--bg-0); color:var(--text); font-family:"Inter","Segoe UI",system-ui,sans-serif; overflow:hidden; user-select:none; }
+  body{ background:var(--bg-0); color:var(--text); font-family:"Inter","Segoe UI",system-ui,sans-serif; overflow:hidden; user-select:none; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
   .material-symbols-outlined{ font-variation-settings:'FILL' 0,'wght' 400,'opsz' 24; }
   .app{ display:flex; height:100%; }
 
@@ -54,20 +54,38 @@
   .deck{ position:relative; width:var(--card-w); height:var(--card-h); transform-style:preserve-3d; margin-top:-14px; }
   .deck::after{ content:""; position:absolute; left:50%; bottom:-44px; width:78%; height:32px; transform:translateX(-50%);
     background:radial-gradient(ellipse at center, rgba(0,0,0,.55), transparent 70%); filter:blur(6px); z-index:0; }
+  /* the slot/ledge the cards tuck behind on their way out — extends past the viewport so a card
+     sliding down is fully occluded (no mid-air "invisible cut"), blending into the page bg below. */
+  .ledge{ position:absolute; left:50%; bottom:-344px; transform:translateX(-50%); width:120%; height:348px; z-index:350; pointer-events:none;
+    border-radius:18px 18px 0 0;
+    background:linear-gradient(180deg,#0f1c38 0%,#0b1428 14%,#070b16 36%,var(--bg-0) 100%);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.07), inset 0 14px 26px -12px rgba(0,0,0,.6), 0 -18px 30px -16px rgba(0,0,0,.5); }
+  .ledge::before{ content:""; position:absolute; top:0; left:7%; right:7%; height:4px; border-radius:3px;
+    background:linear-gradient(90deg, transparent, rgba(42,212,255,.6), transparent); box-shadow:0 0 16px rgba(42,212,255,.45); }
   .empty{ position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px; color:var(--muted); text-align:center; padding:40px; }
   .empty .material-symbols-outlined{ font-size:46px; color:#33425f; }
   .deck.is-empty .empty{ display:flex; }
 
   /* ---------- card (same look as the deck prototype) ---------- */
-  .card{ --gx:50%; --gy:38%; --pass:0; --save:0; position:absolute; inset:0; border-radius:22px; transform-style:preserve-3d; will-change:transform,opacity;
+  .card{ --gx:50%; --gy:38%; --pass:0; --save:0; position:absolute; inset:0; border-radius:22px; transform-style:preserve-3d; will-change:transform;
     background:linear-gradient(158deg,#1b2c4d 0%,#101b34 58%,#0b1426 100%);
-    box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 -2px 0 rgba(0,0,0,.45) inset,0 40px 70px -28px rgba(0,0,0,.9),0 10px 22px -12px rgba(0,0,0,.7); overflow:hidden; }
-  .card.top{ box-shadow:0 2px 0 rgba(255,255,255,.09) inset,0 -2px 0 rgba(0,0,0,.5) inset,0 56px 90px -26px rgba(0,0,0,.92),0 0 0 1px rgba(255,255,255,.07) inset,0 0 70px -8px rgba(42,212,255,.12); cursor:grab; }
+    box-shadow:0 2px 0 rgba(255,255,255,.06) inset,0 -2px 0 rgba(0,0,0,.45) inset,0 20px 40px -16px rgba(0,0,0,.65),0 8px 16px -8px rgba(0,0,0,.5);
+    overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  .card.top{
+    box-shadow:
+      0 2px 0 rgba(255,255,255,.09) inset,
+      0 -2px 0 rgba(0,0,0,.5) inset,
+      0 0 0 1px rgba(255,255,255,.07) inset,
+      0 4px 6px -2px rgba(0,0,0,.35),
+      0 12px 24px -6px rgba(0,0,0,.55),
+      0 28px 52px -12px rgba(0,0,0,.6),
+      0 48px 72px -20px rgba(0,0,0,.45);
+    cursor:grab; }
   .card.top:active{ cursor:grabbing; }
   .grain{ position:absolute; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
   .gloss{ position:absolute; inset:0; pointer-events:none; border-radius:22px;
-    background:radial-gradient(460px 360px at var(--gx) var(--gy), rgba(255,255,255,.15), rgba(255,255,255,.03) 40%, transparent 62%); mix-blend-mode:screen; opacity:0; transition:opacity .3s; }
+    background:radial-gradient(420px 320px at var(--gx) var(--gy), rgba(255,255,255,.22), rgba(255,255,255,.04) 38%, transparent 60%); mix-blend-mode:screen; opacity:0; transition:opacity .3s; }
   .card.top .gloss{ opacity:1; }
   .body{ position:relative; z-index:2; height:100%; padding:24px 24px 22px; display:flex; flex-direction:column; }
   .crow{ display:flex; align-items:flex-start; justify-content:space-between; }
@@ -96,7 +114,7 @@
   body[data-mode="decide"] .stamp.save{ opacity:var(--save); }
 
   /* ---------- actions ---------- */
-  .actions{ position:absolute; left:50%; bottom:30px; transform:translateX(-50%); display:flex; gap:24px; align-items:center; z-index:30; }
+  .actions{ position:absolute; left:50%; bottom:30px; transform:translateX(-50%); display:flex; gap:24px; align-items:center; z-index:400; }
   .group{ display:none; gap:24px; align-items:center; }
   body[data-mode="browse"] .group.browse{ display:flex; }
   body[data-mode="decide"] .group.decide{ display:flex; }
@@ -106,7 +124,7 @@
   .btn.pass .material-symbols-outlined{ color:var(--crimson); } .btn.pass:hover{ box-shadow:0 0 26px -4px var(--crimson); background:rgba(224,49,111,.12); }
   .btn.save .material-symbols-outlined{ color:var(--cyan); } .btn.save:hover{ box-shadow:0 0 26px -4px var(--cyan); background:rgba(42,212,255,.12); }
   .btn.auto{ width:48px; height:48px; } .btn.auto.on{ background:rgba(42,212,255,.14); box-shadow:0 0 20px -6px var(--cyan);} .btn.auto.on .material-symbols-outlined{ color:var(--cyan); }
-  .hint{ position:absolute; left:50%; bottom:96px; transform:translateX(-50%); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#46577a; z-index:30; }
+  .hint{ position:absolute; left:50%; bottom:96px; transform:translateX(-50%); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#46577a; z-index:400; }
 
   .refresh{ display:flex; align-items:center; gap:7px; margin-left:14px; padding:9px 16px; border-radius:999px; cursor:pointer;
     background:#0e1830; border:1px solid rgba(255,255,255,.1); color:var(--muted); font:inherit; font-size:13px; letter-spacing:.06em; transition:transform .12s, box-shadow .2s, background .2s, color .2s; }
@@ -115,10 +133,29 @@
   .refresh.spinning .material-symbols-outlined{ animation:spin .8s linear infinite; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
-  .toast{ position:absolute; left:50%; top:84px; transform:translate(-50%,-12px); z-index:40; font-size:13px; letter-spacing:.1em; padding:9px 18px; border-radius:999px; opacity:0;
+  .toast{ position:absolute; left:50%; top:84px; transform:translate(-50%,-12px); z-index:410; font-size:13px; letter-spacing:.1em; padding:9px 18px; border-radius:999px; opacity:0;
     background:rgba(14,24,48,.92); border:1px solid rgba(255,255,255,.12); transition:opacity .25s, transform .25s; }
   .toast.show{ opacity:1; transform:translate(-50%,0); }
   .toast.saved{ color:var(--cyan); border-color:rgba(42,212,255,.4); } .toast.passed{ color:var(--crimson); border-color:rgba(224,49,111,.4); }
+
+  /* ---------- flag control + Flagged view ---------- */
+  .nav.flagged .material-symbols-outlined{ color:var(--amber); }
+  .flagbtn{ width:30px; height:30px; border-radius:8px; display:none; place-items:center; cursor:pointer; flex-shrink:0;
+    background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.10); color:var(--muted); transition:color .15s, background .15s, border-color .15s; }
+  .card.top .flagbtn{ display:grid; }
+  .flagbtn:hover{ color:var(--amber); border-color:rgba(245,165,36,.5); background:rgba(245,165,36,.14); }
+  .flagbtn .material-symbols-outlined{ font-size:16px; }
+  .flag-modal{ position:fixed; inset:0; z-index:600; display:none; align-items:center; justify-content:center; background:rgba(4,8,16,.62); }
+  .flag-modal.show{ display:flex; }
+  .flag-card{ width:308px; background:var(--panel); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:20px; box-shadow:0 30px 60px -20px #000; }
+  .flag-card h4{ font-size:14.5px; margin-bottom:4px; }
+  .flag-card p{ font-size:12px; color:var(--muted); margin-bottom:15px; line-height:1.4; }
+  .flag-opt{ display:flex; align-items:center; gap:11px; width:100%; padding:12px 14px; margin-bottom:8px; border-radius:11px; cursor:pointer;
+    background:#0e1830; border:1px solid rgba(255,255,255,.1); color:var(--text); font:inherit; font-size:13.5px; font-weight:600; text-align:left; transition:.15s; }
+  .flag-opt:hover{ background:rgba(245,165,36,.12); border-color:rgba(245,165,36,.45); }
+  .flag-opt .material-symbols-outlined{ font-size:19px; color:var(--amber); }
+  .flag-cancel{ width:100%; padding:10px; margin-top:4px; border-radius:11px; cursor:pointer; background:transparent; border:0; color:var(--muted); font:inherit; font-size:12.5px; }
+  .flag-cancel:hover{ color:var(--text); }
 </style>
 </head>
 <body data-mode="browse">
@@ -139,6 +176,7 @@
       </div>
       <div class="stage" id="stage">
         <div class="deck" id="deck">
+          <div class="ledge"></div>
           <div class="empty"><span class="material-symbols-outlined">bookmark_border</span><div>Nothing saved yet.<br>Switch to <b>Decide</b> and swipe right to save opportunities.</div></div>
         </div>
         <div class="toast" id="toast"></div>
@@ -159,6 +197,17 @@
     </main>
   </div>
 
+  <div class="flag-modal" id="flagModal">
+    <div class="flag-card">
+      <h4 id="flagTitle">Flag this entry</h4>
+      <p>Tell the agent why — it won't be shown again, and the agent won't re-add it on the next run.</p>
+      <button class="flag-opt" data-reason="expired"><span class="material-symbols-outlined">event_busy</span>Expired / closed</button>
+      <button class="flag-opt" data-reason="duplicate"><span class="material-symbols-outlined">content_copy</span>Duplicate</button>
+      <button class="flag-opt" data-reason="hallucinated"><span class="material-symbols-outlined">block</span>Not real (made up)</button>
+      <button class="flag-cancel" id="flagCancel">Cancel</button>
+    </div>
+  </div>
+
 <script src="records.js"></script>
 <script>
 let ALL = window.RECORDS || [];
@@ -173,7 +222,7 @@ const CAT = {
   competitions:{label:"Competitions", icon:"emoji_events", kicker:"Competition"},
 };
 const CAT_ORDER = Object.keys(CAT);
-const TODAY = new Date('2026-06-09');
+const TODAY = new Date();   // real current date — expiry/tier never goes stale
 const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
 
 // ---- data shaping ----
@@ -195,9 +244,65 @@ const isEmail=s=>/^[^@\s]+@[^@\s]+\.[^@\s,]+$/.test((s||'').trim());
 const isUrl=s=>/^(https?:\/\/|www\.)/i.test(s||'')||/^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test((s||'').trim());
 const href=s=>isEmail(s)?'mailto:'+s.trim():(/^https?:/.test(s)?s:'https://'+s);
 const googleUrl=rec=>'https://www.google.com/search?q='+encodeURIComponent(rec.title+' '+CAT[rec.cat].label+' music submission');
-const shortPills=rec=>(rec.pills||[]).filter(p=>p&&p.length<=50&&!/\d{4}/.test(p)).slice(0,3);
+// Pills: dedupe against subtitle to avoid repeating location in tags
+const shortPills=rec=>{
+  const sub=(rec.subtitle||'').toLowerCase().trim();
+  return (rec.pills||[]).filter(p=>p&&p.length<=50&&!/\d{4}/.test(p)&&p.toLowerCase().trim()!==sub).slice(0,3);
+};
 const cleanSub=s=>(s&&s.length<=46&&!/\d{4}/.test(s))?s:'';
 const key=rec=>rec.cat+'|'+rec.title;
+// Canonical id for flagging — matches feedback_store.block_key
+const normName=s=>s.replace(/[^a-z0-9]/g,'');
+const recId=rec=>rec.id||(rec.cat+'|'+normName((rec.title||'').toLowerCase()));
+
+// ---- flag state (localStorage + server) ----
+let flagged = new Set(JSON.parse(localStorage.getItem('syncsnake_flags')||'[]'));
+async function loadFlagsFromServer(){
+  try{
+    const res=await fetch('api/feedback',{cache:'no-store'});
+    if(!res.ok) return;
+    const data=await res.json();
+    (data.flags||[]).forEach(f=>{ if(f.id) flagged.add(f.id); });
+    localStorage.setItem('syncsnake_flags',JSON.stringify([...flagged]));
+  }catch(_){}
+}
+async function submitFlag(rec, reason){
+  const fid=recId(rec);
+  flagged.add(fid);
+  localStorage.setItem('syncsnake_flags',JSON.stringify([...flagged]));
+  try{
+    await fetch('api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({cat:rec.cat,title:rec.title,reason,id:fid})});
+  }catch(_){}
+}
+async function removeFlag(fid){
+  flagged.delete(fid);
+  localStorage.setItem('syncsnake_flags',JSON.stringify([...flagged]));
+  try{
+    await fetch('api/feedback',{method:'DELETE',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:fid})});
+  }catch(_){}
+}
+function isFlagged(rec){ return flagged.has(recId(rec)); }
+
+// ---- flag modal ----
+let _flagRec=null;
+const flagModal=document.getElementById('flagModal');
+function openFlagModal(rec){ _flagRec=rec; document.getElementById('flagTitle').textContent='Flag: '+rec.title; flagModal.classList.add('show'); }
+function closeFlagModal(){ flagModal.classList.remove('show'); _flagRec=null; }
+document.getElementById('flagCancel').onclick=closeFlagModal;
+flagModal.addEventListener('click',e=>{ if(e.target===flagModal) closeFlagModal(); });
+flagModal.querySelectorAll('.flag-opt').forEach(btn=>{
+  btn.onclick=async()=>{
+    if(!_flagRec) return;
+    const rec=_flagRec; closeFlagModal();
+    await submitFlag(rec, btn.dataset.reason);
+    // remove the card from ALL and reload the current view
+    ALL=ALL.filter(r=>recId(r)!==recId(rec));
+    loadDeck(activeCat); syncNav();
+    showToast('passed','⚑  Flagged — agent won\'t re-add this');
+  };
+});
 
 // ---- state ----
 let saved = new Set(JSON.parse(localStorage.getItem('syncsnake_saved')||'[]'));
@@ -220,7 +325,7 @@ function cardEl(rec){
   el.innerHTML=`<div class="grain"></div><div class="gloss"></div>
     <div class="stamp pass">PASS</div><div class="stamp save">SAVE</div>
     <div class="body">
-      <div class="crow"><div class="ico"><span class="material-symbols-outlined">${c.icon}</span></div><div class="tier ${tier.k}"><span>${tier.label}</span></div></div>
+      <div class="crow"><div class="ico"><span class="material-symbols-outlined">${c.icon}</span></div><div class="tier ${tier.k}"><span>${tier.label}</span></div><button class="flagbtn" title="Flag this entry"><span class="material-symbols-outlined">flag</span></button></div>
       <div class="kicker">${c.kicker}</div>
       <div class="name">${rec.title}</div>
       ${sub?`<div class="sub"><span class="material-symbols-outlined">place</span><span>${sub}</span></div>`:''}
@@ -228,29 +333,50 @@ function cardEl(rec){
       ${pills.length?`<div class="pills">${pills.map(p=>`<span class="pill">${p}</span>`).join('')}</div>`:''}
       <div class="spacer"></div>${contactLine}${cta}
     </div>`;
+  el.querySelector('.flagbtn').addEventListener('click', e=>{ e.stopPropagation(); openFlagModal(rec); });
   return el;
 }
 
 // ---- deck placement ----
 const VISIBLE=4;
-function placeBehind(el,rel){ const lift=rel*15,sc=1-rel*0.05,rot=[0,-3,3,-5][rel]||0;
-  el.classList.remove('top'); el.style.transition='transform .55s cubic-bezier(.22,.61,.36,1), opacity .4s';
-  el.style.transform=`translateY(${lift}px) scale(${sc}) rotate(${rot}deg)`; el.style.opacity=rel>=VISIBLE?'0':String(1-rel*0.10);
-  el.style.zIndex=String(100-rel); el.style.pointerEvents='none'; }
+function placeBehind(el,rel,instant){ const lift=-rel*15,sc=1-rel*0.05,rot=[0,-2,2,-3,3][rel]||0;   // peek UPWARD so the deck's thickness shows above; the bottom stays a clean exit slot
+  el.classList.remove('top');
+  el.style.transition = instant ? 'none' : 'transform .55s cubic-bezier(.22,.61,.36,1), filter .4s';
+  el.style.transform=`translateY(${lift}px) scale(${sc}) rotate(${rot}deg)`;
+  // Physical cards stay fully opaque — depth reads through scale + a darkening shadow, never transparency.
+  el.style.opacity='1';
+  el.style.filter=`brightness(${Math.max(0.5, 1-rel*0.13)})`;
+  el.style.visibility = rel>VISIBLE ? 'hidden' : 'visible';   // cull cards deeper than the stack (no fade)
+  el.style.zIndex=String(100-rel); el.style.pointerEvents='none';
+  if(instant) void el.offsetWidth; }
 function setGloss(el,gx,gy){ el.style.setProperty('--gx',gx+'%'); el.style.setProperty('--gy',gy+'%'); el.style.setProperty('--foil',(gx*2.4)+'deg'); }
-function placeTop(el){ el.classList.add('top'); el.style.zIndex='200'; el.style.opacity='1'; el.style.pointerEvents='auto';
-  if(!dragging){ el.style.transition='transform .5s cubic-bezier(.22,.61,.36,1)'; el.style.transform=`translateZ(40px) rotateX(${-ty*8}deg) rotateY(${tx*12}deg)`; setGloss(el,50+tx*22,44-ty*16); } }
+function placeTop(el){
+  el.classList.add('top'); el.style.zIndex='200';
+  el.style.opacity='1'; el.style.filter='none'; el.style.visibility='visible';
+  el.style.pointerEvents='auto';
+  if(!dragging){
+    // Rest flat on its own footprint — no cursor-follow tilt (that warped the card off
+    // its bounds and revealed the one behind it as a moving diagonal seam).
+    el.style.transition='transform .5s cubic-bezier(.22,.61,.36,1)';
+    el.style.transform='translateZ(0)';
+  }
+}
 function render(){ for(let i=0;i<N;i++){ const el=cardsEl[i]; if(el===leaving) continue; const rel=mod(i-pos,N); rel===0?placeTop(el):placeBehind(el,rel); }
   const tot=N||0; document.getElementById('hint').textContent = N? (mode==='browse'?`card ${pos+1} of ${tot}`:`${tot} to review · ${saved.size} saved`) : ''; }
 
 function loadDeck(cat){
   activeCat=cat;
-  deckRecords = (cat==='__saved__') ? ALL.filter(r=>saved.has(key(r))) : ALL.filter(r=>r.cat===cat);
+  const base = cat==='__saved__' ? ALL.filter(r=>saved.has(key(r)))
+             : cat==='__flagged__' ? []   // populated below from server
+             : ALL.filter(r=>r.cat===cat&&!isFlagged(r));
+  deckRecords = base;
+  if(cat==='__flagged__'){
+    _renderFlaggedView(); return;
+  }
   deck.querySelectorAll('.card').forEach(n=>n.remove());
   cardsEl = deckRecords.map(cardEl); cardsEl.forEach(el=>deck.appendChild(el));
   N=cardsEl.length; pos=0; leaving=null;
   deck.classList.toggle('is-empty', N===0);
-  // top bar
   const meta = cat==='__saved__' ? {label:'Saved', icon:'bookmark'} : CAT[cat];
   document.getElementById('ttlIcon').textContent=meta.icon;
   document.getElementById('ttlText').textContent=meta.label;
@@ -258,37 +384,81 @@ function loadDeck(cat){
   render(); syncNav();
 }
 
+// ---- Flagged view (list, not deck) ----
+async function _renderFlaggedView(){
+  deck.querySelectorAll('.card').forEach(n=>n.remove());
+  N=0; leaving=null;
+  document.getElementById('ttlIcon').textContent='flag';
+  document.getElementById('ttlText').textContent='Flagged';
+  let flags=[];
+  try{ const res=await fetch('api/feedback',{cache:'no-store'}); if(res.ok){ const d=await res.json(); flags=d.flags||[]; } }catch(_){}
+  document.getElementById('ttlSub').textContent=flags.length?`· ${flags.length} flagged`:'';
+  // render as simple list cards
+  if(!flags.length){ deck.classList.add('is-empty'); render(); syncNav(); return; }
+  deck.classList.remove('is-empty');
+  flags.forEach(f=>{
+    const el=document.createElement('div'); el.className='card'; el.style.cssText='position:relative;border-radius:16px;padding:18px 20px;cursor:default;';
+    const label={'expired':'Expired','duplicate':'Duplicate','hallucinated':'Not real'}[f.reason]||f.reason;
+    el.innerHTML=`<div class="body" style="height:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)">${label}</span>
+        <span style="font-size:10.5px;color:var(--muted)">${f.cat}</span>
+      </div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:4px">${f.title}</div>
+      ${f.note?`<div style="font-size:12.5px;color:var(--muted)">${f.note}</div>`:''}
+      <button data-fid="${f.id}" style="margin-top:14px;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:var(--text);font:inherit;font-size:12px;cursor:pointer;">Un-flag</button>
+    </div>`;
+    el.querySelector('button').onclick=async()=>{
+      await removeFlag(f.id);
+      // re-add to ALL if it was previously in the catalogue (refresh will pick it up properly)
+      _renderFlaggedView(); syncNav();
+      showToast('saved','↺  Un-flagged');
+    };
+    deck.appendChild(el);
+  });
+  // position the cards as a static list
+  deck.querySelectorAll('.card').forEach((el,i)=>{ el.style.position='relative'; el.style.inset=''; el.style.transform='none'; el.style.opacity='1'; el.style.visibility='visible'; el.style.filter='none'; el.style.zIndex='1'; el.style.marginBottom='10px'; });
+  const inner=document.createElement('div'); inner.style.cssText='position:absolute;inset:0;overflow-y:auto;padding:8px 0;';
+  Array.from(deck.querySelectorAll('.card')).forEach(c=>inner.appendChild(c));
+  deck.appendChild(inner);
+  syncNav();
+}
+
 // ---- advance ----
 function showToast(kind,label){ const t=document.getElementById('toast'); t.className='toast show '+kind; t.textContent=label;
   clearTimeout(showToast._t); showToast._t=setTimeout(()=>t.className='toast',1100); }
-const EJECT={ left:'translate(-150%,4%) rotate(-20deg)', right:'translate(150%,4%) rotate(20deg)', down:'translate(0,140%) rotate(5deg)' };
-// FORWARD: physically throw the top card off-screen (never a cross-fade in place).
+const EJECT={ left:'translate(-230%,6%) rotate(-22deg)', right:'translate(230%,6%) rotate(22deg)', down:'translate(0,170%)' };  // 'down' slides straight into the slot — no rotation so it tucks cleanly behind the ledge
+// FORWARD: physically fling the top card clear off-screen — fully opaque, never a cross-fade in place.
 // commit = 'pass' | 'save' | 'none'; ejectDir overrides the throw direction (for browse drags).
 function advance(commit, ejectDir){
   if(leaving||N===0) return; const top=cardsEl[pos]; leaving=top;
   const dir = ejectDir || (commit==='pass'?'left':commit==='save'?'right':'down');
-  top.style.transition='transform .42s ease-in, opacity .42s';
-  top.style.transform=EJECT[dir]; top.style.opacity='0';
+  top.classList.remove('top'); top.style.zIndex='300';
+  top.style.transition='transform .5s cubic-bezier(.45,0,.9,.35)';   // accelerate out = thrown weight
+  top.style.transform=EJECT[dir];                                    // opacity stays 1 — it leaves by flying, not fading
   if(commit==='save'){ top.style.setProperty('--save',1); saved.add(key(deckRecords[pos])); localStorage.setItem('syncsnake_saved',JSON.stringify([...saved])); syncNav(); showToast('saved','★  Saved to shortlist'); }
   else if(commit==='pass'){ top.style.setProperty('--pass',1); showToast('passed','✕  Passed'); }
   pos=mod(pos+1,N); render();
-  const done=()=>{ top.style.transition='none'; top.style.setProperty('--pass',0); top.style.setProperty('--save',0); top.classList.remove('top');
-    top.style.opacity='0'; top.style.transform=`translateY(${VISIBLE*15}px) scale(${1-VISIBLE*0.05})`; leaving=null; };
-  top.addEventListener('transitionend',done,{once:true}); setTimeout(()=>{ if(leaving===top) done(); },520);
+  const done=()=>{ leaving=null; top.style.transition='none';
+    top.style.setProperty('--pass',0); top.style.setProperty('--save',0);
+    placeBehind(top, mod(cardsEl.indexOf(top)-pos, N), true);   // snap to the back of the stack, opaque, no slide-back
+  };
+  top.addEventListener('transitionend',done,{once:true}); setTimeout(()=>{ if(leaving===top) done(); },560);
 }
 // BACKWARD: the previous card physically flies back in from below the deck.
 function back(){
   if(leaving||N===0) return;
   const nt=cardsEl[mod(pos-1,N)]; leaving=nt;
-  nt.classList.remove('top'); nt.style.transition='none'; nt.style.zIndex='200';
-  nt.style.transform='translate(0,140%) rotate(5deg)'; nt.style.opacity='1';
+  nt.classList.remove('top'); nt.style.transition='none'; nt.style.zIndex='300';
+  nt.style.filter='none'; nt.style.visibility='visible'; nt.style.opacity='1';   // returning card is solid, not a faded ghost
+  nt.style.transform='translate(0,170%)';   // rises straight up out of the slot
   void nt.offsetWidth;                         // commit the off-screen start frame
   pos=mod(pos-1,N); render();                  // slide the rest of the stack down (nt is skipped — it's mid-flight)
   requestAnimationFrame(()=>{
     nt.style.transition='transform .46s cubic-bezier(.22,.61,.36,1)';
-    nt.style.transform='translateZ(40px) rotateX(0deg) rotateY(0deg)';
+    nt.style.transform='translateZ(0) rotateX(0deg) rotateY(0deg)';
   });
-  const done=()=>{ nt.classList.add('top'); nt.style.zIndex='200'; leaving=null; };
+  const done=()=>{ leaving=null; placeTop(nt); };
   nt.addEventListener('transitionend',done,{once:true}); setTimeout(()=>{ if(leaving===nt) done(); },520);
 }
 
@@ -297,15 +467,13 @@ stage.addEventListener('pointermove', e=>{
   if(dragging){ dx=e.clientX-downX; dy=e.clientY-downY; const top=cardsEl[pos]; if(!top) return;
     top.style.transform=`translate(${dx}px, ${dy*0.4}px) rotate(${dx*0.05}deg)`;
     top.style.setProperty('--pass',clamp(-dx/110,0,1)); top.style.setProperty('--save',clamp(dx/110,0,1)); return; }
-  const r=stage.getBoundingClientRect(); tx=(e.clientX-r.left)/r.width-0.5; ty=(e.clientY-r.top)/r.height-0.5;
-  const top=cardsEl[pos]; if(top&&top!==leaving&&!auto){ top.style.transition='transform .12s ease-out';
-    top.style.transform=`translateZ(40px) rotateX(${-ty*8}deg) rotateY(${tx*12}deg)`; setGloss(top,50+tx*22,44-ty*16); } });
-stage.addEventListener('pointerleave', ()=>{ if(dragging) return; tx=0; ty=0; const top=cardsEl[pos]; if(top&&top!==leaving) placeTop(top); });
-stage.addEventListener('pointerdown', e=>{ if(leaving||auto||N===0) return; if(!e.target.closest('.card.top')) return; if(e.target.closest('.cta')) return;
+  /* idle mouse movement no longer tilts the card — the resting top card stays flat and solid */ });
+stage.addEventListener('pointerleave', ()=>{ if(dragging) return; const top=cardsEl[pos]; if(top&&top!==leaving) placeTop(top); });
+stage.addEventListener('pointerdown', e=>{ if(leaving||auto||N===0) return; if(!e.target.closest('.card.top')) return; if(e.target.closest('.cta')||e.target.closest('.flagbtn')) return;
   dragging=true; downX=e.clientX; downY=e.clientY; dx=0; dy=0; cardsEl[pos].style.transition='none'; stage.setPointerCapture(e.pointerId); });
 function endDrag(){ if(!dragging) return; dragging=false; const top=cardsEl[pos]; if(!top) return;
   if(Math.abs(dx)>110){ if(mode==='decide') advance(dx>0?'save':'pass'); else advance('none', dx>0?'right':'left'); }
-  else{ top.style.transition='transform .4s cubic-bezier(.22,.61,.36,1)'; top.style.transform='translateZ(40px) rotateX(0deg) rotateY(0deg)'; top.style.setProperty('--pass',0); top.style.setProperty('--save',0); } dx=0; dy=0; }
+  else{ top.style.transition='transform .4s cubic-bezier(.22,.61,.36,1)'; top.style.transform='translateZ(0) rotateX(0deg) rotateY(0deg)'; top.style.setProperty('--pass',0); top.style.setProperty('--save',0); } dx=0; dy=0; }
 stage.addEventListener('pointerup', endDrag); stage.addEventListener('pointercancel', endDrag);
 
 // scroll wheel / trackpad: flip through the deck (debounced to ~1 card per gesture)
@@ -340,12 +508,16 @@ function buildNav(){ nav.innerHTML='';
   const sv=document.createElement('div'); sv.className='nav saved'; sv.dataset.cat='__saved__';
   sv.innerHTML=`<span class="material-symbols-outlined">bookmark</span><span class="lab">Saved</span><span class="cnt" id="savedCnt">${saved.size}</span>`;
   sv.onclick=()=>loadDeck('__saved__'); nav.appendChild(sv);
+  const fl=document.createElement('div'); fl.className='nav flagged'; fl.dataset.cat='__flagged__';
+  fl.innerHTML=`<span class="material-symbols-outlined">flag</span><span class="lab">Flagged</span><span class="cnt" id="flaggedCnt">${flagged.size}</span>`;
+  fl.onclick=()=>loadDeck('__flagged__'); nav.appendChild(fl);
   const lbl=document.createElement('div'); lbl.className='navlbl'; lbl.textContent='Categories'; lbl.style.padding='14px 12px 4px'; nav.appendChild(lbl);
-  CAT_ORDER.forEach(cat=>{ const cnt=ALL.filter(r=>r.cat===cat).length; const el=document.createElement('div'); el.className='nav'; el.dataset.cat=cat;
+  CAT_ORDER.forEach(cat=>{ const cnt=ALL.filter(r=>r.cat===cat&&!isFlagged(r)).length; const el=document.createElement('div'); el.className='nav'; el.dataset.cat=cat;
     el.innerHTML=`<span class="material-symbols-outlined">${CAT[cat].icon}</span><span class="lab">${CAT[cat].label}</span><span class="cnt">${cnt}</span>`;
     el.onclick=()=>loadDeck(cat); nav.appendChild(el); }); }
 function syncNav(){ nav.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on', n.dataset.cat===activeCat));
-  const sc=document.getElementById('savedCnt'); if(sc) sc.textContent=saved.size; }
+  const sc=document.getElementById('savedCnt'); if(sc) sc.textContent=saved.size;
+  const fc=document.getElementById('flaggedCnt'); if(fc) fc.textContent=flagged.size; }
 
 window.addEventListener('keydown', e=>{
   if(e.key===' '){ e.preventDefault(); setAuto(!auto); }
@@ -379,7 +551,7 @@ async function refresh(){
 }
 document.getElementById('bRefresh').onclick=refresh;
 
-buildNav(); loadDeck('agencies');
+loadFlagsFromServer().then(()=>{ buildNav(); loadDeck('agencies'); });
 </script>
 </body>
 </html>

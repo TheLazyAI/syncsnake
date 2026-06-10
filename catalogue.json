@@ -350,6 +350,96 @@
       "submission_guidelines": "Open to independent and DIY artists",
       "roster_genre_focus": "Hip-hop, independent and DIY artists",
       "regions": "Not specified in text"
+    },
+    {
+      "name": "Koze Music Publishing",
+      "website": "",
+      "location": "Los Angeles, CA",
+      "contact_info": "",
+      "submission_guidelines": "easy-to-clear music, careful curation and fast responses are implied criteria",
+      "roster_genre_focus": "diverse catalog of easy-to-clear music, emerging indie talent, established artists, and a wide range of genres, eras, and regional sounds",
+      "regions": "worldwide"
+    },
+    {
+      "name": "Lyric House",
+      "website": "",
+      "location": "Los Angeles, CA",
+      "contact_info": "",
+      "submission_guidelines": "accepts demos across all genres",
+      "roster_genre_focus": "all genres",
+      "regions": ""
+    },
+    {
+      "name": "PLB Sync",
+      "website": "",
+      "location": "Los Angeles, CA",
+      "contact_info": "",
+      "submission_guidelines": "represents both established and emerging artists for sync placements across all media; all music is one-stop or easy clear",
+      "roster_genre_focus": "",
+      "regions": ""
+    },
+    {
+      "name": "Assemble Sound",
+      "website": "",
+      "location": "Los Angeles, CA",
+      "contact_info": "",
+      "submission_guidelines": "",
+      "roster_genre_focus": "",
+      "regions": "Detroit, Los Angeles"
+    },
+    {
+      "name": "Position Music",
+      "website": "",
+      "location": "",
+      "contact_info": "",
+      "submission_guidelines": "",
+      "roster_genre_focus": "",
+      "regions": ""
+    },
+    {
+      "name": "Red Bull Records Publishing",
+      "website": "",
+      "location": "",
+      "contact_info": "",
+      "submission_guidelines": "",
+      "roster_genre_focus": "",
+      "regions": ""
+    },
+    {
+      "name": "Symphonic",
+      "website": "",
+      "location": "",
+      "contact_info": "",
+      "submission_guidelines": "accept submissions for review; pitches daily to a network of music supervisors, advertising agencies, and independent licensing professionals; works with a carefully selected roster",
+      "roster_genre_focus": "",
+      "regions": ""
+    },
+    {
+      "name": "onestop",
+      "website": "",
+      "location": "Los Angeles and Barcelona",
+      "contact_info": "Not explicitly provided",
+      "submission_guidelines": "Represents a carefully curated roster of exceptional independent artists, bands, and composers",
+      "roster_genre_focus": "Curated, high-quality music catalog, diverse and unique 100% one-stop catalog, independent artists, bands, composers, Vintage Catalog with authentic, undiscovered gems",
+      "regions": "Los Angeles, Barcelona (global reach)"
+    },
+    {
+      "name": "Color The Horizon Music Licensing",
+      "website": "",
+      "location": "California (implied)",
+      "contact_info": "Not explicitly provided",
+      "submission_guidelines": "Not explicitly provided",
+      "roster_genre_focus": "Diverse selection of writers, artists, composers, and music rights holders; focus on film, TV, advertising, gaming, and new media",
+      "regions": "California (implied)"
+    },
+    {
+      "name": "Seven Seas Music",
+      "website": "",
+      "location": "San Francisco",
+      "contact_info": "Not explicitly provided",
+      "submission_guidelines": "Platform helps media professionals find and license authentic music from around the world; empowers media creators and artists by showcasing music",
+      "roster_genre_focus": "Authentic music from around the world, emerging and established global artists",
+      "regions": "San Francisco, global"
     }
   ],
   "supervisors": [
@@ -792,6 +882,158 @@
       "notable_projects": "Guild of Music Supervisors Award Winner for 'Whiplash'. Responsible for music in over 100 commercials (Audi, Volkswagen, NFL, PlayStation), 150 feature films, 75 soundtrack albums, and 120+ theatrical releases (including Oscar and Golden Globe-winning projects).",
       "contact_info": "Via One Stop Jazz Collective (OSJC) general contact information.",
       "submission_policy": "Via One Stop Jazz Collective (OSJC) general contact to inquire about artist submissions. General best practices: no attachments, streaming links (e.g., DISCO, SoundCloud), comprehensive metadata (artist, title, album, release, PRO info, splits), one-stop clearance, curated playlists (approx. 10 relevant songs), instrumental versions separate, concise communication."
+    },
+    {
+      "name": "Laura Katz",
+      "company": "SUPE TROOP",
+      "location": "Los Angeles",
+      "notable_projects": "Films: \"My Dead Friend Zoe\", \"Animal Farm\", \"Stuck in Love\", \"Chappaquiddick\", \"Big Time Adolescence\"; Video Games: \"Sunset Overdrive\"; TV Shows: \"Cake\" (FXX/Hulu), \"The Choe Show\" (FX/Hulu), \"The Librarians: The Next Chapter\" (TNT); Original songs: \"All I Want\" (American Chaos), \"Requiem for a Private War\" (A Private War).",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Marchese (Caze) Taylor",
+      "company": "evergreen music",
+      "location": "Los Angeles, CA",
+      "notable_projects": "Film: \"I Love My Dad\"; TV: \"Legacy: The True Story of the LA Lakers\" (Hulu), \"Nathan For You\" (Comedy Central), \"The Dress Up Gang\" (TBS), \"Free Meek\" (Amazon Studios); Ads: Instagram, Bud Light, Samsung, Champion, Aeropostale.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Kylynne Ferguson",
+      "company": "evergreen music",
+      "location": "Los Angeles",
+      "notable_projects": "Ad campaigns: Dove, Axe, Hellman\u2019s, Johnnie Walker, TRESemm\u00e9, GoPro; TV Shows (VICE): \"Desus & Mero\", \"Weediquette\", \"Slutever\", \"King of the Road\", \"Epicly Later\u2019d\", \"My House\".",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Howard Paar",
+      "company": "Independent (formerly Polygram Records, V2 Records)",
+      "location": "Los Angeles",
+      "notable_projects": "Films: \"Nightbitch\", \"Eileen\", \"Can You Ever Forgive Me\", \"Scary Stories To Tell In The Dark\", \"A Beautiful Day In The Neighborhood\", \"Private Life\", \"20th Century Women\", \"Diary Of A Teenage Girl\", \"Monster\", \"Bully\", \"Mysterious Skin\", \"The Big Lebowski\" (soundtrack), \"Nowhere\" (soundtrack); TV Shows: \"The L Word\", \"King Of The Hill\" (themes), \"Ellen\" (themes).",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Evyen Klean",
+      "company": "Neophonic, Inc.",
+      "location": "Santa Monica, CA",
+      "notable_projects": "Not specified",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "PJ Bloom",
+      "company": "Neophonic, Inc.",
+      "location": "Santa Monica, CA",
+      "notable_projects": "Not specified",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Peter Afterman",
+      "company": "Inaudible Productions",
+      "location": "Los Angeles",
+      "notable_projects": "Over 150 film, television, and advertising credits, including films like \"Dune\", \"Godzilla vs. Kong\"; Ad campaigns for Saint Laurent, Chanel.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Margaret Yen",
+      "company": "Inaudible Productions",
+      "location": "Los Angeles",
+      "notable_projects": "Over 150 film, television, and advertising credits, including films like \"Dune\", \"Godzilla vs. Kong\"; Ad campaigns for Saint Laurent, Chanel.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Dave Jordan",
+      "company": "Format Entertainment",
+      "location": "Los Angeles",
+      "notable_projects": "Creates 'sonic landscapes for blockbuster films, hit TV shows, and branded entertainment'.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Julia Michels",
+      "company": "Format Entertainment",
+      "location": "Los Angeles",
+      "notable_projects": "Creates 'sonic landscapes for blockbuster films, hit TV shows, and branded entertainment'.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Julianne Jordan",
+      "company": "Format Entertainment",
+      "location": "Los Angeles",
+      "notable_projects": "Creates 'sonic landscapes for blockbuster films, hit TV shows, and branded entertainment'.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Anastasia Brown",
+      "company": "Format Entertainment",
+      "location": "Los Angeles",
+      "notable_projects": "Creates 'sonic landscapes for blockbuster films, hit TV shows, and branded entertainment'.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Jojo Vlillanueva",
+      "company": "Format Entertainment",
+      "location": "Los Angeles",
+      "notable_projects": "Creates 'sonic landscapes for blockbuster films, hit TV shows, and branded entertainment'.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Jennifer Ross",
+      "company": "Format Entertainment",
+      "location": "Los Angeles",
+      "notable_projects": "Creates 'sonic landscapes for blockbuster films, hit TV shows, and branded entertainment'.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Taylor Rowley",
+      "company": "Dream Songs",
+      "location": "Los Angeles",
+      "notable_projects": "Provides music supervision for film, TV, and ads.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Brooke Wentz",
+      "company": "The Rights Workshop",
+      "location": "Los Angeles and San Francisco",
+      "notable_projects": "Work for ESPN and TechTV.",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Chris Mollere",
+      "company": "Fusion Music Supervision",
+      "location": "Los Angeles",
+      "notable_projects": "Not specified",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Nick DeMatteo",
+      "company": "The Drop",
+      "location": "Los Angeles",
+      "notable_projects": "Not specified",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
+    },
+    {
+      "name": "Zachary Keirstead",
+      "company": "Not specified",
+      "location": "South Pasadena, CA",
+      "notable_projects": "Not specified",
+      "contact_info": "Not specified",
+      "submission_policy": "Not specified"
     }
   ],
   "platforms": [
@@ -950,6 +1192,144 @@
       "url": "Not specified in text",
       "description": "Can help identify music supervisors and the types of music they use.",
       "requirements": "Not specified in text"
+    },
+    {
+      "name": "ArtistPortal.Studio",
+      "url": "",
+      "description": "This platform offers various sync licensing opportunities, including a \"June 2026 Artist Top 5 Opportunity\".",
+      "requirements": "accepts submissions across all genres, with bonus attention given to California-based artists"
+    },
+    {
+      "name": "UnitedMasters SELECT",
+      "url": "",
+      "description": "This music distribution and marketing platform provides sync licensing and placement opportunities for independent artists, including partnerships with TV networks and music supervisors.",
+      "requirements": "artists can submit their music through the platform's \"Exclusives\" tab"
+    },
+    {
+      "name": "That Pitch",
+      "url": "",
+      "description": "This platform aims to simplify sync licensing by distributing music into over 100 sync libraries. Artists can join for free, upload unlimited tracks, and keep 100% of their earnings. They automatically match and pitch tracks to libraries.",
+      "requirements": "artists can join for free, upload unlimited tracks"
+    },
+    {
+      "name": "Sync Summit Courses",
+      "url": "https://syncsummit.com/courses/",
+      "description": "Deep dive into how to work in the business of music and media for sync, taught by industry experts.",
+      "requirements": "Not explicitly stated, implies enrollment"
+    },
+    {
+      "name": "Sync Summit Consulting",
+      "url": "https://syncsummit.com/consulting/",
+      "description": "Services to help artists, composers, labels, publishers, management companies, producers, music libraries, sync agencies, tech or service providers prepare, package, and present music to decision-makers in TV, film, games, apps, brands and advertising for licensing and composition.",
+      "requirements": "Not explicitly stated, implies engagement with the service"
+    },
+    {
+      "name": "The Music For Ads and Brands Class (Sync Summit)",
+      "url": "https://syncsummit.com/classes",
+      "description": "A class focused on music for ads and brands.",
+      "requirements": "Not explicitly stated, implies enrollment; Classes Start September 17"
+    },
+    {
+      "name": "Pond5",
+      "url": "N/A",
+      "description": "Stock music website offering extensive libraries of tracks, often categorized by mood or genre.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "PremiumBeat",
+      "url": "N/A",
+      "description": "Stock music website offering extensive libraries of tracks, often categorized by mood or genre.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "AudioJungle",
+      "url": "N/A",
+      "description": "Stock music website offering extensive libraries of tracks, often categorized by mood or genre.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "Epidemic Sound",
+      "url": "N/A",
+      "description": "Subscription service offering unlimited access to their music catalogs.",
+      "requirements": "Subscription model for unlimited access."
+    },
+    {
+      "name": "Soundstripe",
+      "url": "N/A",
+      "description": "Stock music website offering extensive libraries of tracks, often categorized by mood or genre.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "Foximusic",
+      "url": "N/A",
+      "description": "Stock music website offering extensive libraries of tracks, often categorized by mood or genre.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "Mixkit",
+      "url": "N/A",
+      "description": "Stock music website offering extensive libraries of tracks, often categorized by mood or genre.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "Pixabay Music",
+      "url": "N/A",
+      "description": "Stock music website offering extensive libraries of tracks, often categorized by mood or genre.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "GameDev Market",
+      "url": "N/A",
+      "description": "Dedicated game music library specializing in music tailored for video games.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "OpenGameArt",
+      "url": "N/A",
+      "description": "Dedicated game music library specializing in music tailored for video games.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "Kenney.nl",
+      "url": "N/A",
+      "description": "Dedicated game music library specializing in music tailored for video games.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "Ninichi Music",
+      "url": "N/A",
+      "description": "Dedicated game music library specializing in music tailored for video games.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "RouteNote Licensing",
+      "url": "N/A",
+      "description": "Platform offering thousands of tracks and over 30,000 sound effects cleared for commercial use. Provides affordable forever-use licenses.",
+      "requirements": "$4.99/month for music or $3.99/month for sound effects."
+    },
+    {
+      "name": "Artlist",
+      "url": "N/A",
+      "description": "Subscription service offering unlimited access to their music catalogs.",
+      "requirements": "Subscription model for unlimited access."
+    },
+    {
+      "name": "UnitedMasters",
+      "url": "N/A",
+      "description": "Music licensing company connecting artists with sync licensing opportunities for various media, including video games.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "Songtradr",
+      "url": "N/A",
+      "description": "Music licensing company connecting artists with sync licensing opportunities for various media, including video games.",
+      "requirements": "N/A"
+    },
+    {
+      "name": "Styngr",
+      "url": "N/A",
+      "description": "Santa Monica-based company providing pre-cleared music catalogs from major labels, simplifying the licensing of popular music for games.",
+      "requirements": "N/A"
     }
   ],
   "restricted_resources": [
@@ -1048,6 +1428,12 @@
       "url": "https://www.epidemicsound.com/",
       "reason_for_restriction": "Geographical restriction: currently partners with artists who are citizens or residents of the United States, United Kingdom, South Korea, Japan, or Sweden. Musicians based in Montreal, Canada, are not eligible.",
       "expected_value": "Offers non-exclusive agreements, upfront payments, streaming royalties, and a Soundtrack Bonus; broad genre interest, good for exposure."
+    },
+    {
+      "source_name": "Sync Summit 12 Month All Access Pass",
+      "url": "https://syncsummit.com/syncnetwork",
+      "reason_for_restriction": "Paid subscription",
+      "expected_value": "All Classes, Events, Listening Sessions and Consulting"
     }
   ],
   "grants": [
@@ -1148,6 +1534,27 @@
       "eligibility_summary": "Individual artists, artist collectives, and non-profit arts organizations residing on the Island of Montr\u00e9al, who are Canadian citizens or permanent residents. One grant specifically for an emerging professional.",
       "deadlines": "April 1, 2026 (closed)",
       "url": "https://www.artsmontreal.org/en/grants/"
+    },
+    {
+      "name": "Funding to Promote Excellence in Music Composition",
+      "organization": "The Grant Portal",
+      "eligibility_summary": "Available to California-based individuals and organizations engaged in arts, culture, history, music, and humanities. Specifically targets original music works and compositional development without preferences for style or background. Applicants should be aware of California-specific compliance challenges, including independent contractor classification under AB5 (risk of reclassification as employees if project proposals suggest ongoing funder direction) and tax-exempt status verification. Proposals involving public-domain inspirations or performances in California's coastal economy zones must affirm compliance with the California Environmental Quality Act (CEQA). Does not fund equipment purchases, live performances, recordings, or marketing.",
+      "deadlines": "Ongoing",
+      "url": "https://www.thegrantportal.com/"
+    },
+    {
+      "name": "Living Cultures Grant",
+      "organization": "Alliance for California Traditional Arts (ACTA)",
+      "eligibility_summary": "Supports communities in California in carrying forward, strengthening, and sharing their traditions, including music. Individual artists/culture bearers can apply for $7,500 grants, while nonprofits and Tribal Nations can receive $10,000. Projects involving any genre of traditional arts\u2014including but not limited to music, dance, storytelling, theater, traditional cooking, and crafts, or other handmade arts\u2014are welcome. Individual artists must live in California, provide proof of residency, be a traditional artist or culture bearer who has practiced their tradition for at least five years, be 18 years old or older, and be able to receive taxable income in California with a Social Security number or a taxpayer ID. Organizations/Community Groups/Tribal Nations can apply for $10,000 if they are based in California and meet specific rules (e.g., nonprofit with 501(c)(3) status).",
+      "deadlines": "Application opens: March 3, 2026; Application closes: April 27, 2026; Grant notifications: August 2026; Grant period: September 1, 2026 \u2013 August 31, 2027",
+      "url": ""
+    },
+    {
+      "name": "Musical Grant Program (MGP)",
+      "organization": "InterMusic SF",
+      "eligibility_summary": "Provides financial support for Bay Area-based music creators and collaborators. It funds activities such as live performances, composition commissions, and professional recordings. InterMusic SF utilizes the Common Application for the Arts to simplify the application process for artists seeking funding from multiple Bay Area grantmakers.",
+      "deadlines": "The 2026 grant cycle is scheduled to open on January 23, 2026, with an application deadline of March 20, 2026. The grant activity period for awarded projects will run from June 1, 2026, to December 31, 2027.",
+      "url": ""
     }
   ],
   "festivals": [
@@ -1843,6 +2250,90 @@
       "application_window": "Typically several months in advance of the annual festival. Check website for specific dates.",
       "requirements_fees": "Check website for specific submission guidelines and requirements for artists interested in performing.",
       "url": "Search online for 'Coastal Jazz Vancouver International Jazz Festival'"
+    },
+    {
+      "name": "LA Sync Summit 2026",
+      "location": "Santa Monica (The Recording Club) and Online",
+      "application_window": "February 2-3, 2026; Register by January 9, 2026 for discounted rate",
+      "requirements_fees": "$499 discounted rate (by Jan 9, 2026), rises to $799 after; Networking, education, and knowledge sharing in music licensing for visual and interactive media.",
+      "url": "https://syncsummit.com/events"
+    },
+    {
+      "name": "AI+SYNC SYMPOSIUM (Sync Summit)",
+      "location": "NYC and Online",
+      "application_window": "July 14, 2026",
+      "requirements_fees": "Networking, education, and knowledge sharing in music licensing for visual and interactive media, with a focus on AI.",
+      "url": "https://syncsummit.com/aiagenda/"
+    },
+    {
+      "name": "NY Ad Sync Summit 2026",
+      "location": "NYC and Online",
+      "application_window": "October 1-2, 2026",
+      "requirements_fees": "Networking, education, and knowledge sharing in music licensing for visual and interactive media, with a focus on advertising.",
+      "url": "https://syncsummit.com/asagenda26/"
+    },
+    {
+      "name": "Coast Film & Music Festival",
+      "location": "Laguna Beach",
+      "application_window": "October 16-25, 2026",
+      "requirements_fees": "Documentary-only festival adding a new category for 'films with music' and developing programs with a live music component. Aims to inspire positive change through film, music, and storytelling.",
+      "url": ""
+    },
+    {
+      "name": "SacFilmChallenge, Music & Film Festival",
+      "location": "West Sacramento",
+      "application_window": "October 2-4, 2026",
+      "requirements_fees": "Screens films and music videos across genres like drama, comedy, sci-fi, and fantasy. Hybrid event with virtual and in-person screenings and live Q&A.",
+      "url": ""
+    },
+    {
+      "name": "SIMI Music Video Fest",
+      "location": "Simi Valley",
+      "application_window": "September 13, 2026",
+      "requirements_fees": "Dedicated to celebrating the union of music and visual storytelling, showcasing music videos of all genres and styles. Awards for categories such as Best Original Song.",
+      "url": ""
+    },
+    {
+      "name": "San Francisco Silent Film Festival",
+      "location": "San Francisco",
+      "application_window": "May 6-10, 2026",
+      "requirements_fees": "Presents silent films accompanied by live music, promoting silent film as both an art form and a historical record.",
+      "url": ""
+    },
+    {
+      "name": "LA Sync Summit 2027",
+      "location": "Santa Monica (The Recording Club) and Online",
+      "application_window": "February 8-9, 2027 (during Grammy Week)",
+      "requirements_fees": "Networking, education, and knowledge sharing in music licensing for visual and interactive media. Expected to cover global and social media sync opportunities, storytelling from the studio perspective, and music use in games, apps, VR, and interactive platforms.",
+      "url": "https://syncsummit.com/la2027agenda/"
+    },
+    {
+      "name": "SacTown Film Fest",
+      "location": "Sacramento",
+      "application_window": "April 9-12, 2027",
+      "requirements_fees": "Includes a 'Music Contest' alongside its film and screenwriting competitions. Focuses on independent films and aims to facilitate networking.",
+      "url": ""
+    },
+    {
+      "name": "California MUSIC VIDEO & FILM AWARDS",
+      "location": "San Francisco",
+      "application_window": "February 15, 2027; Submissions are open",
+      "requirements_fees": "Celebrates creative music videos, music, musicians, artists, films, and directors. Submissions are open to music videos, music films, and documentaries.",
+      "url": ""
+    },
+    {
+      "name": "GameSoundCon",
+      "location": "Burbank, California",
+      "application_window": "N/A",
+      "requirements_fees": "Offers workshops, panel discussions, and networking opportunities. Scheduled for October 20-21, 2026.",
+      "url": "N/A"
+    },
+    {
+      "name": "Game Developers Conference (GDC)",
+      "location": "San Francisco",
+      "application_window": "N/A",
+      "requirements_fees": "One of the world's largest game development events, typically includes a robust audio track. The GDC Festival of Gaming 2026 is scheduled for March 9-13, 2026.",
+      "url": "N/A"
     }
   ],
   "indie_games": [],
@@ -2275,6 +2766,118 @@
       "requirements_genres": "Generally diverse genres for commercials (e.g., Adidas commercial example).",
       "payout_model": "Not specified",
       "url": "https://www.crucialmusic.com"
+    },
+    {
+      "name": "Seven Seas Music",
+      "submission_status": "Accepting submissions from artists and independent labels, provided publishing and master rights can be cleared.",
+      "requirements_genres": "Authentic music globally, culturally diverse sounds, from emerging and established artists from around the world.",
+      "payout_model": "N/A",
+      "url": "N/A"
+    },
+    {
+      "name": "PLB Sync",
+      "submission_status": "Represents artists for sync placements; all music is one-stop or easy clear.",
+      "requirements_genres": "Diverse styles and genres from cinematic orchestral pieces to cutting-edge electronic soundscapes (for composers).",
+      "payout_model": "N/A",
+      "url": "N/A"
+    },
+    {
+      "name": "Steam Music Group",
+      "submission_status": "Actively seeking music submissions.",
+      "requirements_genres": "Production and trailer music suitable for TV shows, film trailers, corporate films, games, and commercials.",
+      "payout_model": "N/A",
+      "url": "N/A"
+    },
+    {
+      "name": "Film and TV Music Library",
+      "submission_status": "Accepts submissions of songs or music cues for consideration.",
+      "requirements_genres": "Submissions on audio CDs or CD-Rs (no MP3s via email). Artists must provide their CAE/IPI number from their Performing Rights Organization.",
+      "payout_model": "Industry-standard 50/50 split deal.",
+      "url": "N/A"
+    },
+    {
+      "name": "Pond5",
+      "submission_status": "Open",
+      "requirements_genres": "Extensive libraries of tracks, often categorized by mood or genre",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "PremiumBeat",
+      "submission_status": "Open",
+      "requirements_genres": "Extensive libraries of tracks, often categorized by mood or genre",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "AudioJungle",
+      "submission_status": "Open",
+      "requirements_genres": "Extensive libraries of tracks, often categorized by mood or genre",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "Foximusic",
+      "submission_status": "Open",
+      "requirements_genres": "Extensive libraries of tracks, often categorized by mood or genre",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "Mixkit",
+      "submission_status": "Open",
+      "requirements_genres": "Extensive libraries of tracks, often categorized by mood or genre",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "Pixabay Music",
+      "submission_status": "Open",
+      "requirements_genres": "Extensive libraries of tracks, often categorized by mood or genre",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "GameDev Market",
+      "submission_status": "Open",
+      "requirements_genres": "Music tailored for video games",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "OpenGameArt",
+      "submission_status": "Open",
+      "requirements_genres": "Music tailored for video games",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "Kenney.nl",
+      "submission_status": "Open",
+      "requirements_genres": "Music tailored for video games",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "Ninichi Music",
+      "submission_status": "Open",
+      "requirements_genres": "Music tailored for video games",
+      "payout_model": "Royalty-free licenses (one-time payment)",
+      "url": "N/A"
+    },
+    {
+      "name": "RouteNote Licensing",
+      "submission_status": "Open for licensing tracks",
+      "requirements_genres": "Thousands of tracks and over 30,000 sound effects",
+      "payout_model": "Subscription for $4.99/month for music or $3.99/month for sound effects, offers affordable forever-use licenses",
+      "url": "N/A"
+    },
+    {
+      "name": "Styngr",
+      "submission_status": "Provides pre-cleared music catalogs",
+      "requirements_genres": "Popular music from major labels",
+      "payout_model": "N/A",
+      "url": "N/A"
     }
   ],
   "competitions": [
