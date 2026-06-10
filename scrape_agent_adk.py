@@ -31,7 +31,7 @@ from google.adk.agents import LlmAgent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.tools import google_search
-from google.adk.tools.mcp_tool import MCPToolset, StdioConnectionParams
+from google.adk.tools.mcp_tool import McpToolset as MCPToolset, StdioConnectionParams
 from google.genai import types
 
 # Raw MCP client (provisioning + dataset writeback go straight to phoenix-mcp;
