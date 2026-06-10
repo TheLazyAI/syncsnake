@@ -8,3 +8,4 @@ runner_status.json
 runner_output.log
 runner_error.log
 .DS_Store
+HANDOFF_ADK.md
