@@ -1,0 +1,153 @@
+[
+ {
+  "cat": "agencies",
+  "title": "A&GSync (A&G Group)",
+  "subtitle": "London, UK",
+  "desc": "Contact via email for submission guidelines; curates a diverse roster.",
+  "pills": [
+   "Diverse roster for various media.",
+   "UK"
+  ],
+  "url": "agsongspublishing.com",
+  "contact": "songs@agsongspublishing.com"
+ },
+ {
+  "cat": "agencies",
+  "title": "The Sync Agency",
+  "subtitle": "London, UK",
+  "desc": "Submit for briefs via athene@lemonadereps.com.",
+  "pills": [
+   "UK"
+  ],
+  "url": "thesyncagency.com",
+  "contact": "marion@thesyncagency.com, dan@thesyncagency.com, +44 (0) 7950 743 709, +44 (0) 7968 597 507. For briefs: athene@lemonadereps.com"
+ },
+ {
+  "cat": "supervisors",
+  "title": "Abi Leland",
+  "subtitle": "Leland Co.",
+  "desc": "Share music via music@leland.co.",
+  "pills": [
+   "London, UK",
+   "Over 20 years of experience in advertising, film, and television."
+  ],
+  "url": "abi@leland.co",
+  "contact": "abi@leland.co"
+ },
+ {
+  "cat": "supervisors",
+  "title": "Toby Williams",
+  "subtitle": "Leland Co.",
+  "desc": "Share music via music@leland.co.",
+  "pills": [
+   "London, UK",
+   "Over 20 years of experience in advertising, film, and television."
+  ],
+  "url": "toby@leland.co",
+  "contact": "toby@leland.co"
+ },
+ {
+  "cat": "platforms",
+  "title": "Music Gateway",
+  "subtitle": "Key requirements for pitches are available on their website when browsing live briefs.",
+  "desc": "A music licensing agency that allows artists to submit music and browse live briefs for major entities like Netflix, Sony, and Universal Pictures. Offers non-exclusive and exclusive terms.",
+  "pills": [
+   "Key requirements for pitches are available on their website when browsing live briefs."
+  ],
+  "url": "musicgateway.com",
+  "contact": "musicgateway.com"
+ },
+ {
+  "cat": "platforms",
+  "title": "Twine",
+  "subtitle": "Tailored proposals based on project postings.",
+  "desc": "Platform connecting companies with freelancers across creative and tech industries, offering vetted professionals specializing in game soundtracks. Developers can post projects and receive tailored proposals.",
+  "pills": [
+   "Tailored proposals based on project postings."
+  ],
+  "url": "https://www.twine.net/find/game-composers",
+  "contact": "https://www.twine.net/find/game-composers"
+ },
+ {
+  "cat": "grants",
+  "title": "Creative BC Funding",
+  "subtitle": "Creative BC",
+  "desc": "Implied for BC-based creatives and projects, as they fund VIFF Amp.",
+  "pills": [],
+  "url": "https://creativebc.com",
+  "contact": ""
+ },
+ {
+  "cat": "grants",
+  "title": "FACTOR Funding",
+  "subtitle": "FACTOR",
+  "desc": "Canadian artists and music industry professionals.",
+  "pills": [],
+  "url": "https://factor.ca",
+  "contact": ""
+ },
+ {
+  "cat": "festivals",
+  "title": "GameSoundCon",
+  "subtitle": "Typically Los Angeles, CA (USA)",
+  "desc": "Conference registration fees apply for attendees.",
+  "pills": [
+   "Not for artist applications; conference attendance dates vary annually."
+  ],
+  "url": "https://www.gamesoundcon.com/",
+  "contact": "Not for artist applications; conference attendance dates vary annually."
+ },
+ {
+  "cat": "festivals",
+  "title": "Shambhala Music Festival",
+  "subtitle": "Salmo, BC",
+  "desc": "Tickets sold out, waitlist available. Opportunities to join as staff or volunteer.",
+  "pills": [
+   "Festival: July 24-27, 2026. Applications for first-time Staff and Volunteers are now open."
+  ],
+  "url": "https://crew.shambhalamusicfestival.com/",
+  "contact": "Festival: July 24-27, 2026. Applications for first-time Staff and Volunteers are now open."
+ },
+ {
+  "cat": "music_libraries",
+  "title": "Epidemic Sound",
+  "subtitle": "Open and ongoing submission process for music contributors.",
+  "desc": "Continuously looking for new music across all genres to diversify their catalog. Artists are welcome to submit music of any genre.",
+  "pills": [
+   "Unique digital rights model where Epidemic Sound is the sole owner of the financial rights to the music, requiring artists to leave their PRO/NRO or collecting society."
+  ],
+  "url": "https://airtable.com/app3pdIeyYObPtvox/pag59ofYDT6NSRmiB/form",
+  "contact": "Open and ongoing submission process for music contributors."
+ },
+ {
+  "cat": "music_libraries",
+  "title": "APM Music",
+  "subtitle": "Actively accepting submissions in 2026",
+  "desc": "Generally seeks big, cinematic, highly produced tracks for film, TV, ads, and trailers. Large-scale catalog that licenses pre-cleared music.",
+  "pills": [],
+  "url": "Official contributor application or submission link",
+  "contact": "Actively accepting submissions in 2026"
+ },
+ {
+  "cat": "competitions",
+  "title": "LIT Music Awards 2026 (Season 2)",
+  "subtitle": "Early Bird: June 17, 2026; Regular: July 15, 2026; Final: August 19, 2026; Final Extension: September 16, 2026",
+  "desc": "Celebrates musical excellence across various categories, including music, music video, music album, songwriting, music influencer, and instrumental performances.",
+  "pills": [
+   "Open to all emerging and established artists, songwriters, composers, instrumentalists, entertainment labels, music video creators, audio recording professionals, agencies."
+  ],
+  "url": "https://litmusicawards.com",
+  "contact": "Early Bird: June 17, 2026; Regular: July 15, 2026; Final: August 19, 2026; Final Extension: September 16, 2026"
+ },
+ {
+  "cat": "competitions",
+  "title": "World Soundtrack Awards 2026",
+  "subtitle": "June 15, 2026",
+  "desc": "Award categories include Discovery of the Year, Film Composer of the Year, Television Composer of the Year, Best Original Song, WSA Game Music Award, Belgian Film Composer of the Year, Award for Best Original Composition by a Young Composer, WSA Public Choice Award.",
+  "pills": [
+   "Academy membership required for Film Composer of the Year, Television Composer of the Year, Best Original Song, and WSA Game Music Award. Registration fee applies, waived for WSAcademy members. Eligible scores written for film and television."
+  ],
+  "url": "https://www.worldsoundtrackawards.com/awards/submissions",
+  "contact": "June 15, 2026"
+ }
+]

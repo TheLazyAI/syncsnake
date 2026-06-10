@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SyncSnake — The Deck (real data)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<style>
+  :root{
+    --bg-0:#070b16; --bg-1:#0c1426; --text:#eaf1ff; --muted:#93a6c9;
+    --cyan:#2ad4ff; --crimson:#e0316f; --amber:#f5a524; --green:#36d399; --grey:#7c8baa;
+    --card-w:368px; --card-h:512px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(1200px 820px at 50% 22%, #14233f 0%, var(--bg-1) 50%, var(--bg-0) 100%),
+      radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size:auto, 26px 26px;
+    color:var(--text);
+    font-family:"Inter","Segoe UI",system-ui,sans-serif;
+    overflow:hidden; height:100%; user-select:none;
+  }
+  .material-symbols-outlined{ font-variation-settings:'FILL' 0,'wght' 400,'opsz' 24; }
+
+  .badge{ position:fixed; top:26px; left:30px; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--muted); z-index:80;}
+  .badge b{ color:var(--cyan); }
+  .counter{ position:fixed; top:24px; right:32px; font-variant-numeric:tabular-nums; font-size:13px; color:var(--muted); letter-spacing:.16em; z-index:80;}
+  .counter span{ color:#fff; font-size:22px; font-weight:700; }
+  .hint{ position:fixed; left:50%; bottom:22px; transform:translateX(-50%); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#56688c; z-index:80; }
+  .hint b{ color:var(--muted); }
+
+  .stage{ position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    perspective:1500px; perspective-origin:50% 42%; }
+  .deck{ position:relative; width:var(--card-w); height:var(--card-h); transform-style:preserve-3d; margin-top:-26px; }
+  .deck::after{ content:""; position:absolute; left:50%; bottom:-46px; width:78%; height:34px; transform:translateX(-50%);
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.55), transparent 70%); filter:blur(6px); z-index:0; }
+
+  .card{
+    --gx:50%; --gy:38%; --pass:0; --save:0;
+    position:absolute; inset:0; border-radius:22px;
+    transform-style:preserve-3d; will-change:transform,opacity;
+    background:linear-gradient(158deg,#1b2c4d 0%,#101b34 58%,#0b1426 100%);
+    box-shadow:
+      0 2px 0 rgba(255,255,255,.06) inset, 0 -2px 0 rgba(0,0,0,.45) inset,
+      0 40px 70px -28px rgba(0,0,0,.9), 0 10px 22px -12px rgba(0,0,0,.7);
+    overflow:hidden;
+  }
+  .card.top{ box-shadow:
+      0 2px 0 rgba(255,255,255,.09) inset, 0 -2px 0 rgba(0,0,0,.5) inset,
+      0 56px 90px -26px rgba(0,0,0,.92), 0 0 0 1px rgba(255,255,255,.07) inset,
+      0 0 70px -8px rgba(42,212,255,.12); cursor:grab; }
+  .card.top:active{ cursor:grabbing; }
+
+  .grain{ position:absolute; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .gloss{ position:absolute; inset:0; pointer-events:none; border-radius:22px;
+    background:radial-gradient(420px 320px at var(--gx) var(--gy), rgba(255,255,255,.22), rgba(255,255,255,.04) 38%, transparent 60%);
+    mix-blend-mode:screen; opacity:0; transition:opacity .3s; }
+  .card.top .gloss{ opacity:1; }
+
+  .body{ position:relative; z-index:2; height:100%; padding:24px 24px 22px; display:flex; flex-direction:column; }
+  .row{ display:flex; align-items:flex-start; justify-content:space-between; }
+  .ico{ width:46px; height:46px; border-radius:13px; display:grid; place-items:center;
+    background:linear-gradient(150deg, rgba(42,212,255,.28), rgba(42,212,255,.08)); border:1px solid rgba(42,212,255,.3); }
+  .ico .material-symbols-outlined{ color:var(--cyan); font-size:24px; }
+
+  .tier{ position:relative; font-size:10px; font-weight:800; letter-spacing:.1em; padding:7px 13px; border-radius:999px;
+    color:#fff; overflow:hidden; border:1px solid rgba(255,255,255,.18); white-space:nowrap; }
+  .tier::before{ content:""; position:absolute; inset:0; opacity:.85; mix-blend-mode:color-dodge;
+    background:conic-gradient(from var(--foil,0deg), #2ad4ff, #b06bff, #e0316f, #f5a524, #2ad4ff); background-size:200% 200%; }
+  .tier span{ position:relative; z-index:1; }
+  .tier.act{ background:rgba(224,49,111,.24); } .tier.soon{ background:rgba(245,165,36,.2); }
+  .tier.scheduled{ background:rgba(42,212,255,.2); } .tier.evergreen{ background:rgba(54,211,153,.2); }
+  .tier.closed{ background:rgba(124,139,170,.18); } .tier.closed::before{ opacity:0; }
+
+  .kicker{ margin-top:22px; font-size:11px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+  .name{ margin-top:6px; font-size:30px; font-weight:800; line-height:1.06; letter-spacing:-.02em;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .sub{ margin-top:9px; display:flex; align-items:center; gap:6px; font-size:14px; color:var(--muted); }
+  .sub .material-symbols-outlined{ font-size:16px; }
+  .sub span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  .desc{ margin-top:16px; font-size:14.5px; line-height:1.5; color:rgba(234,241,255,.86);
+    border-top:1px solid rgba(255,255,255,.08); padding-top:15px;
+    display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; }
+
+  .pills{ display:flex; flex-wrap:wrap; gap:7px; margin-top:13px; }
+  .pill{ font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    padding:5px 11px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:#bccbe8; }
+
+  .spacer{ flex:1; }
+  .contact{ display:flex; align-items:center; gap:7px; font-size:12px; color:rgba(147,166,201,.8);
+    font-family:ui-monospace,monospace; margin-bottom:13px; }
+  .contact .material-symbols-outlined{ font-size:15px; }
+  .contact span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  .cta{ height:50px; border-radius:14px; display:flex; align-items:center; justify-content:center; gap:9px;
+    background:#fff; color:#0c1426; font-weight:800; font-size:14px; text-decoration:none; letter-spacing:.04em; text-transform:uppercase; }
+  .cta .material-symbols-outlined{ font-size:18px; }
+  .cta.search{ background:rgba(255,255,255,.1); color:var(--text); border:1px solid rgba(255,255,255,.18); }
+  .cta.search .material-symbols-outlined{ color:var(--cyan); }
+
+  .stamp{ position:absolute; top:30px; z-index:5; font-size:30px; font-weight:900; letter-spacing:.08em;
+    padding:6px 16px; border-radius:12px; border:4px solid; pointer-events:none; }
+  .stamp.pass{ left:24px; transform:rotate(-16deg); color:var(--crimson); border-color:var(--crimson); opacity:var(--pass); }
+  .stamp.save{ right:24px; transform:rotate(16deg); color:var(--cyan); border-color:var(--cyan); opacity:var(--save); }
+
+  .actions{ position:fixed; left:50%; bottom:66px; transform:translateX(-50%); display:flex; gap:26px; z-index:80; }
+  .btn{ width:60px; height:60px; border-radius:50%; display:grid; place-items:center; cursor:pointer;
+    background:#0e1830; border:1px solid rgba(255,255,255,.1); transition:transform .12s, box-shadow .2s, background .2s; }
+  .btn .material-symbols-outlined{ font-size:26px; }
+  .btn:hover{ transform:translateY(-3px) scale(1.06); }
+  .btn.pass .material-symbols-outlined{ color:var(--crimson); } .btn.pass:hover{ box-shadow:0 0 26px -4px var(--crimson); background:rgba(224,49,111,.12); }
+  .btn.save .material-symbols-outlined{ color:var(--cyan); }    .btn.save:hover{ box-shadow:0 0 26px -4px var(--cyan); background:rgba(42,212,255,.12); }
+  .btn.auto{ width:48px; height:48px; align-self:center; } .btn.auto .material-symbols-outlined{ color:var(--muted); font-size:20px; }
+  .btn.auto.on{ background:rgba(42,212,255,.14); box-shadow:0 0 20px -6px var(--cyan);} .btn.auto.on .material-symbols-outlined{ color:var(--cyan); }
+
+  .toast{ position:fixed; left:50%; top:84px; transform:translate(-50%,-12px); z-index:90;
+    font-size:13px; letter-spacing:.1em; padding:9px 18px; border-radius:999px; opacity:0;
+    background:rgba(14,24,48,.9); border:1px solid rgba(255,255,255,.12); transition:opacity .25s, transform .25s; }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  .toast.saved{ color:var(--cyan); border-color:rgba(42,212,255,.4); }
+  .toast.passed{ color:var(--crimson); border-color:rgba(224,49,111,.4); }
+</style>
+</head>
+<body>
+  <div class="badge">SyncSnake · <b>The Deck</b></div>
+  <div class="counter"><span id="cur">1</span> / <span id="tot">0</span></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="stage" id="stage"><div class="deck" id="deck"></div></div>
+
+  <div class="actions">
+    <div class="btn pass" id="bPass" title="Pass (←)"><span class="material-symbols-outlined">close</span></div>
+    <div class="btn auto" id="bAuto" title="Auto-play (space)"><span class="material-symbols-outlined">play_arrow</span></div>
+    <div class="btn save" id="bSave" title="Save (→)"><span class="material-symbols-outlined">favorite</span></div>
+  </div>
+  <div class="hint">drag the card · <b>←</b> pass · save <b>→</b> · <b>space</b> auto-play</div>
+
+<script>
+// real cross-category records pulled from catalogue.json (already slot-normalized)
+const RECORDS = [
+ {cat:"agencies", title:"A&GSync (A&G Group)", subtitle:"London, UK", desc:"Contact via email for submission guidelines; curates a diverse roster.", pills:["Diverse roster for various media.","UK"], url:"agsongspublishing.com", contact:"songs@agsongspublishing.com"},
+ {cat:"agencies", title:"The Sync Agency", subtitle:"London, UK", desc:"Submit for briefs via athene@lemonadereps.com.", pills:["UK"], url:"thesyncagency.com", contact:"marion@thesyncagency.com, dan@thesyncagency.com, +44 (0) 7950 743 709. For briefs: athene@lemonadereps.com"},
+ {cat:"supervisors", title:"Abi Leland", subtitle:"Leland Co.", desc:"Share music via music@leland.co.", pills:["London, UK","Over 20 years of experience in advertising, film, and television."], url:"abi@leland.co", contact:"abi@leland.co"},
+ {cat:"supervisors", title:"Toby Williams", subtitle:"Leland Co.", desc:"Share music via music@leland.co.", pills:["London, UK","Over 20 years of experience in advertising, film, and television."], url:"toby@leland.co", contact:"toby@leland.co"},
+ {cat:"platforms", title:"Music Gateway", subtitle:"Key requirements for pitches are available on their website when browsing live briefs.", desc:"A music licensing agency that allows artists to submit music and browse live briefs for major entities like Netflix, Sony, and Universal Pictures. Offers non-exclusive and exclusive terms.", pills:["Key requirements for pitches are available on their website when browsing live briefs."], url:"musicgateway.com", contact:"musicgateway.com"},
+ {cat:"platforms", title:"Twine", subtitle:"Tailored proposals based on project postings.", desc:"Platform connecting companies with freelancers across creative and tech industries, offering vetted professionals specializing in game soundtracks. Developers can post projects and receive tailored proposals.", pills:["Tailored proposals based on project postings."], url:"https://www.twine.net/find/game-composers", contact:"https://www.twine.net/find/game-composers"},
+ {cat:"grants", title:"Creative BC Funding", subtitle:"Creative BC", desc:"Implied for BC-based creatives and projects, as they fund VIFF Amp.", pills:[], url:"https://creativebc.com", contact:""},
+ {cat:"grants", title:"FACTOR Funding", subtitle:"FACTOR", desc:"Canadian artists and music industry professionals.", pills:[], url:"https://factor.ca", contact:""},
+ {cat:"festivals", title:"GameSoundCon", subtitle:"Typically Los Angeles, CA (USA)", desc:"Conference registration fees apply for attendees.", pills:["Not for artist applications; conference attendance dates vary annually."], url:"https://www.gamesoundcon.com/", contact:"Not for artist applications; conference attendance dates vary annually."},
+ {cat:"festivals", title:"Shambhala Music Festival", subtitle:"Salmo, BC", desc:"Tickets sold out, waitlist available. Opportunities to join as staff or volunteer.", pills:["Festival: July 24-27, 2026. Applications for first-time Staff and Volunteers are now open."], url:"https://crew.shambhalamusicfestival.com/", contact:"Festival: July 24-27, 2026. Applications for first-time Staff and Volunteers are now open."},
+ {cat:"music_libraries", title:"Epidemic Sound", subtitle:"Open and ongoing submission process for music contributors.", desc:"Continuously looking for new music across all genres to diversify their catalog. Artists are welcome to submit music of any genre.", pills:["Unique digital rights model where Epidemic Sound is the sole owner of the financial rights to the music."], url:"https://airtable.com/app3pdIeyYObPtvox/pag59ofYDT6NSRmiB/form", contact:"Open and ongoing submission process for music contributors."},
+ {cat:"music_libraries", title:"APM Music", subtitle:"Actively accepting submissions in 2026", desc:"Generally seeks big, cinematic, highly produced tracks for film, TV, ads, and trailers. Large-scale catalog that licenses pre-cleared music.", pills:[], url:"", contact:"Actively accepting submissions in 2026"},
+ {cat:"competitions", title:"LIT Music Awards 2026", subtitle:"Early Bird: June 17, 2026; Regular: July 15, 2026; Final: August 19, 2026", desc:"Celebrates musical excellence across categories including music, music video, album, songwriting, music influencer, and instrumental performances.", pills:["Open to all emerging and established artists, songwriters, composers."], url:"https://litmusicawards.com", contact:"Early Bird: June 17, 2026; Regular: July 15, 2026"},
+ {cat:"competitions", title:"World Soundtrack Awards 2026", subtitle:"June 15, 2026", desc:"Categories include Discovery of the Year, Film Composer of the Year, Television Composer of the Year, Best Original Song, and the WSA Game Music Award.", pills:["Academy membership required for some categories."], url:"https://www.worldsoundtrackawards.com/awards/submissions", contact:"June 15, 2026"},
+];
+
+const CAT = {
+  agencies:{label:"Sync Agency", icon:"corporate_fare"},
+  supervisors:{label:"Music Supervisor", icon:"groups"},
+  platforms:{label:"Brief Platform", icon:"assignment"},
+  grants:{label:"Grant & Funding", icon:"payments"},
+  festivals:{label:"Festival", icon:"theater_comedy"},
+  music_libraries:{label:"Music Library", icon:"library_music"},
+  competitions:{label:"Competition", icon:"emoji_events"},
+};
+const TODAY = new Date('2026-06-09');
+const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+
+// --- normalization / data-shaping rules (the honest part) ---
+function parseNextDate(s){
+  if(!s) return null;
+  const re=/([a-z]{3,9})\s+(\d{1,2})(?:\s*[–-]\s*\d{1,2})?,?\s*(\d{4})/gi;
+  let m, all=[];
+  while((m=re.exec(s))){ const mo=MONTHS[m[1].slice(0,3).toLowerCase()]; if(mo==null) continue; all.push(new Date(+m[3],mo,+m[2])); }
+  if(!all.length) return null;
+  const future=all.filter(d=>d>=TODAY).sort((a,b)=>a-b);
+  return future.length ? future[0] : all.sort((a,b)=>a-b)[0];
+}
+function tierFor(rec){
+  const status=((rec.subtitle||'')+' '+(rec.desc||'')+' '+(rec.contact||'')).toLowerCase();
+  if(/closed|sold out|not for artist|not accepting/.test(status)) return {k:'closed', label:'FYI'};
+  const d=parseNextDate((rec.contact||'')+' '+(rec.subtitle||''));
+  if(d){
+    const days=Math.round((d-TODAY)/864e5);
+    const md=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    if(days<=0) return {k:'act', label:'Closing'};
+    if(days<=30) return {k:'act', label:'Closes in '+days+'d'};
+    if(days<=90) return {k:'soon', label:'By '+md};
+    return {k:'scheduled', label:'By '+md};
+  }
+  if(/open|ongoing|accepting|rolling|welcome|invite/.test(status)) return {k:'evergreen', label:'OPEN'};
+  return {k:'evergreen', label:'OPEN'};
+}
+const isEmail = s => /^[^@\s]+@[^@\s]+\.[^@\s,]+$/.test((s||'').trim());
+const isUrl   = s => /^(https?:\/\/|www\.)/i.test(s||'') || /^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test((s||'').trim());
+const href    = s => isEmail(s) ? 'mailto:'+s.trim() : (/^https?:/.test(s)?s:'https://'+s);
+function googleUrl(rec){ return 'https://www.google.com/search?q='+encodeURIComponent(rec.title+' '+CAT[rec.cat].label+' music submission'); }
+// only keep pills that read like actual tags, not prose
+const shortPills = rec => (rec.pills||[]).filter(p=>p && p.length<=30 && !/\d{4}/.test(p)).slice(0,3);
+// hide subtitle when it's really prose or a deadline blob
+const cleanSub = s => (s && s.length<=46 && !/\d{4}/.test(s)) ? s : '';
+
+const N = RECORDS.length, VISIBLE = 4;
+document.getElementById('tot').textContent = N;
+const deck = document.getElementById('deck');
+
+const cardsEl = RECORDS.map((rec)=>{
+  const c = CAT[rec.cat];
+  const tier = tierFor(rec);
+  const sub = cleanSub(rec.subtitle);
+  const pills = shortPills(rec);
+  // CTA: deep link → email → google fallback
+  let cta;
+  if(isUrl(rec.url))            cta=`<a class="cta" href="${href(rec.url)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">open_in_new</span> Visit</a>`;
+  else if(isEmail(rec.url)||isEmail(rec.contact)) cta=`<a class="cta" href="${href(isEmail(rec.url)?rec.url:rec.contact)}"><span class="material-symbols-outlined">mail</span> Get in touch</a>`;
+  else                          cta=`<a class="cta search" href="${googleUrl(rec)}" target="_blank" rel="noopener"><span class="material-symbols-outlined">travel_explore</span> Search Google</a>`;
+  const contactLine = (isEmail(rec.contact) && rec.contact!==sub)
+    ? `<div class="contact"><span class="material-symbols-outlined">alternate_email</span><span>${rec.contact}</span></div>` : '';
+
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.innerHTML = `
+    <div class="grain"></div><div class="gloss"></div>
+    <div class="stamp pass">PASS</div><div class="stamp save">SAVE</div>
+    <div class="body">
+      <div class="row">
+        <div class="ico"><span class="material-symbols-outlined">${c.icon}</span></div>
+        <div class="tier ${tier.k}"><span>${tier.label}</span></div>
+      </div>
+      <div class="kicker">${c.label}</div>
+      <div class="name">${rec.title}</div>
+      ${sub ? `<div class="sub"><span class="material-symbols-outlined">place</span><span>${sub}</span></div>`:''}
+      <div class="desc">${rec.desc||'Details available at the source — open it to learn more.'}</div>
+      ${pills.length ? `<div class="pills">${pills.map(p=>`<span class="pill">${p}</span>`).join('')}</div>`:''}
+      <div class="spacer"></div>
+      ${contactLine}
+      ${cta}
+    </div>`;
+  deck.appendChild(el);
+  return el;
+});
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const mod=(n,m)=>((n%m)+m)%m;
+let pos=0, dragging=false, dx=0, dy=0, downX=0, downY=0, tx=0, ty=0, leaving=null, auto=false, autoTimer=null;
+
+function placeBehind(el, rel){
+  const lift=rel*15, sc=1-rel*0.05, rot=[0,-3,3,-5][rel]||0;
+  el.classList.remove('top');
+  el.style.transition='transform .55s cubic-bezier(.22,.61,.36,1), opacity .4s';
+  el.style.transform=`translateY(${lift}px) scale(${sc}) rotate(${rot}deg)`;
+  el.style.opacity= rel>=VISIBLE ? '0' : String(1-rel*0.10);
+  el.style.zIndex=String(100-rel); el.style.pointerEvents='none';
+}
+function setGloss(el,gx,gy){ el.style.setProperty('--gx',gx+'%'); el.style.setProperty('--gy',gy+'%'); el.style.setProperty('--foil',(gx*2.4)+'deg'); }
+function placeTop(el){
+  el.classList.add('top'); el.style.zIndex='200'; el.style.opacity='1'; el.style.pointerEvents='auto';
+  if(!dragging){
+    el.style.transition='transform .5s cubic-bezier(.22,.61,.36,1)';
+    el.style.transform=`translateZ(40px) rotateX(${-ty*8}deg) rotateY(${tx*12}deg)`;
+    setGloss(el, 50+tx*70, 42-ty*70);
+  }
+}
+function render(){
+  for(let i=0;i<N;i++){ const el=cardsEl[i]; if(el===leaving) continue;
+    const rel=mod(i-pos,N); rel===0?placeTop(el):placeBehind(el,rel); }
+  document.getElementById('cur').textContent = pos+1;
+}
+function showToast(dir){
+  const t=document.getElementById('toast');
+  t.className='toast show '+(dir>0?'saved':'passed');
+  t.textContent = dir>0?'★  Saved to shortlist':'✕  Passed';
+  clearTimeout(showToast._t); showToast._t=setTimeout(()=>t.className='toast',1100);
+}
+function leave(dir){
+  if(leaving) return;
+  const top=cardsEl[pos]; leaving=top;
+  top.style.transition='transform .5s ease-in, opacity .5s';
+  top.style.transform=`translate(${dir*145}%, 6%) rotate(${dir*22}deg)`; top.style.opacity='0';
+  top.style.setProperty(dir>0?'--save':'--pass',1);
+  showToast(dir); pos=mod(pos+1,N); render();
+  const done=()=>{ top.style.transition='none'; top.style.setProperty('--pass',0); top.style.setProperty('--save',0);
+    top.classList.remove('top'); top.style.opacity='0'; top.style.transform=`translateY(${VISIBLE*15}px) scale(${1-VISIBLE*0.05})`; leaving=null; };
+  top.addEventListener('transitionend',done,{once:true});
+  setTimeout(()=>{ if(leaving===top) done(); },620);
+}
+const stage=document.getElementById('stage');
+stage.addEventListener('pointermove', e=>{
+  if(dragging){ dx=e.clientX-downX; dy=e.clientY-downY; const top=cardsEl[pos];
+    top.style.transform=`translate(${dx}px, ${dy*0.4}px) rotate(${dx*0.05}deg)`;
+    top.style.setProperty('--pass',clamp(-dx/110,0,1)); top.style.setProperty('--save',clamp(dx/110,0,1)); return; }
+  const r=stage.getBoundingClientRect(); tx=(e.clientX-r.left)/r.width-0.5; ty=(e.clientY-r.top)/r.height-0.5;
+  const top=cardsEl[pos];
+  if(top&&top!==leaving&&!auto){ top.style.transition='transform .12s ease-out';
+    top.style.transform=`translateZ(40px) rotateX(${-ty*8}deg) rotateY(${tx*12}deg)`; setGloss(top,50+tx*70,42-ty*70); }
+});
+stage.addEventListener('pointerleave', ()=>{ if(dragging) return; tx=0; ty=0; const top=cardsEl[pos]; if(top&&top!==leaving) placeTop(top); });
+stage.addEventListener('pointerdown', e=>{
+  if(leaving||auto) return; if(!e.target.closest('.card.top')) return; if(e.target.closest('.cta')) return;
+  dragging=true; downX=e.clientX; downY=e.clientY; dx=0; dy=0; cardsEl[pos].style.transition='none'; stage.setPointerCapture(e.pointerId);
+});
+function endDrag(){ if(!dragging) return; dragging=false; const top=cardsEl[pos];
+  if(Math.abs(dx)>110){ leave(dx>0?1:-1); }
+  else{ top.style.transition='transform .4s cubic-bezier(.22,.61,.36,1)'; top.style.transform='translateZ(40px) rotateX(0deg) rotateY(0deg)';
+        top.style.setProperty('--pass',0); top.style.setProperty('--save',0); } dx=0; dy=0; }
+stage.addEventListener('pointerup', endDrag); stage.addEventListener('pointercancel', endDrag);
+document.getElementById('bPass').onclick=()=>!auto&&leave(-1);
+document.getElementById('bSave').onclick=()=>!auto&&leave(1);
+const bAuto=document.getElementById('bAuto');
+function setAuto(on){ auto=on; bAuto.classList.toggle('on',on); clearInterval(autoTimer);
+  if(on){ autoTimer=setInterval(()=>{ if(!leaving) leave(Math.random()>0.45?1:-1); },2100); }
+  else{ const top=cardsEl[pos]; if(top&&top!==leaving) placeTop(top); } }
+bAuto.onclick=()=>setAuto(!auto);
+window.addEventListener('keydown', e=>{
+  if(e.key==='ArrowLeft'){ setAuto(false); leave(-1); }
+  if(e.key==='ArrowRight'){ setAuto(false); leave(1); }
+  if(e.key===' '){ e.preventDefault(); setAuto(!auto); }
+});
+render();
+</script>
+</body>
+</html>
